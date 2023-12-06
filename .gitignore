@@ -1,3 +1,6 @@
+# Buffer file disgard
+archive.json
+
 # Logs
 logs
 *.log
