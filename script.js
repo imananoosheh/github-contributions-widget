@@ -42,20 +42,27 @@ async function getContributions(token, username) {
 
 getContributions(process.env.GITHUB_ACCESS_TOKEN, process.env.GITHUB_USERNAME);
 
-fileSystem.readFile('./archive.json', 'utf-8', (err, data)=>{
-  if(err){
-    console.log(err)
-    return
-  }
-  const contributions = JSON.parse(data)
-  let contributionFile = []
-  for(const week of contributions.data.user.contributionsCollection.contributionCalendar.weeks){
-    contributionFile.push(...week["contributionDays"])
-  }
-  fileSystem.writeFile('./gh-contributions.json', JSON.stringify(contributionFile), err => {
-    if(err){
-      console.log(err)
-      return
+setTimeout(() => {
+  fileSystem.readFile("./archive.json", "utf-8", (err, data) => {
+    if (err) {
+      console.log(err);
+      return;
     }
-  })
-})
+    const contributions = JSON.parse(data);
+    let contributionFile = [];
+    for (const week of contributions.data.user.contributionsCollection
+      .contributionCalendar.weeks) {
+      contributionFile.push(...week["contributionDays"]);
+    }
+    fileSystem.writeFile(
+      "./gh-contributions.json",
+      JSON.stringify(contributionFile),
+      (err) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+      }
+    );
+  });
+}, 2000);
