@@ -10,7 +10,7 @@
         text-align: center;
       }
 
-      .calendar {
+      #calendar {
         display: grid;
         /* 53 columns for each week in a year */
         grid-template-columns: repeat(53, 17px);
@@ -20,6 +20,8 @@
       }
 
       .day {
+        width: 17px;
+        height: 17px;
         border: 1px solid #ddd;
         display: flex;
         align-items: center;
