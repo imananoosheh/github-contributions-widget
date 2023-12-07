@@ -94,4 +94,9 @@ function generateCalendar() {
     }
   }
 }
+while(!contributionData){
+    setTimeout(()=>{
+        console.log('Fetching Data...')
+    },500)
+}
 generateCalendar();
