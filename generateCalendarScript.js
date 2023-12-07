@@ -42,7 +42,7 @@ function generateCalendar() {
   const calendarComponent = document.getElementById("calendar-component");
   const calendarHeader = document.createElement("h1");
   calendarHeader.textContent = "GitHub Activity Calendar";
-  calendarComponent.append(CalendarHeader);
+  calendarComponent.append(calendarHeader);
   const calendarMonthsTemplate = document.createElement("div");
   calendarMonthsTemplate.className = "months";
   for (let i = 0; i < 13; i++) {
