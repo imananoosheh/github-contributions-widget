@@ -10,12 +10,15 @@ async function fetchData() {
     }
     const data = await response.json();
     contributionData = data;
+    if(contributionData.length >0){
+        generateCalendar();
+    }else{
+        console.log(`Data fethed is empty!...\ncontributionData:${contributionData}`)
+    }
   } catch (error) {
     console.error("There was a problem with the fetch operation:", error);
   }
 }
-
-fetchData();
 
 const monthsMap = {
   0: "Jan",
@@ -93,9 +96,5 @@ function generateCalendar() {
     }
   }
 }
-while (!contributionData) {
-  setTimeout(() => {
-    console.log("Fetching Data...");
-  }, 500);
-}
-generateCalendar();
+
+fetchData();
