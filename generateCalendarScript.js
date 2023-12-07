@@ -10,10 +10,12 @@ async function fetchData() {
     }
     const data = await response.json();
     contributionData = data;
-    if(contributionData.length >0){
-        generateCalendar();
-    }else{
-        console.log(`Data fethed is empty!...\ncontributionData:${contributionData}`)
+    if (contributionData.length > 0) {
+      generateCalendar();
+    } else {
+      console.log(
+        `Data fethed is empty!...\ncontributionData:${contributionData}`
+      );
     }
   } catch (error) {
     console.error("There was a problem with the fetch operation:", error);
@@ -64,7 +66,8 @@ function generateCalendar() {
     calendarDaysAsideBlock.append(day);
   }
   calendarDaysTemplate.append(calendarDaysAsideBlock);
-  const calendar = document.getElementById("calendar");
+  const calendar = document.createElement("div");
+  calendar.id = "calendar";
   calendar.innerHTML = "";
   calendarDaysTemplate.append(calendar);
   calendarComponent.append(calendarDaysTemplate);
