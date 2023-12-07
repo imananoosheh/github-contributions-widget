@@ -31,15 +31,11 @@ const monthsMap = {
   10: "Nov",
   11: "Dec",
 };
-const startingMonth = new Date(contributionData[0]["date"]).getMonth();
-const monthsHeaderAxis = document.querySelectorAll(".month");
-for (let i = 0; i < monthsHeaderAxis.length; i++) {
-  const currentMonth =
-    i + startingMonth > 11 ? i + startingMonth - 12 : i + startingMonth;
-  monthsHeaderAxis[i].textContent = `${monthsMap[currentMonth]}`;
-}
 
 function generateCalendar() {
+  const startingMonth = new Date(contributionData[0]["date"]).getMonth();
+
+  // component creation steps happends here
   const calendarComponent = document.getElementById("calendar-component");
   const calendarHeader = document.createElement("h1");
   calendarHeader.textContent = "GitHub Activity Calendar";
@@ -49,6 +45,9 @@ function generateCalendar() {
   for (let i = 0; i < 13; i++) {
     const month = document.createElement("div");
     month.className = "month";
+    const currentMonth =
+      i + startingMonth > 11 ? i + startingMonth - 12 : i + startingMonth;
+    month.textContent = `${monthsMap[currentMonth]}`;
     calendarMonthsTemplate.append(month);
   }
   calendarComponent.append(calendarMonthsTemplate);
@@ -94,9 +93,9 @@ function generateCalendar() {
     }
   }
 }
-while(!contributionData){
-    setTimeout(()=>{
-        console.log('Fetching Data...')
-    },500)
+while (!contributionData) {
+  setTimeout(() => {
+    console.log("Fetching Data...");
+  }, 500);
 }
 generateCalendar();
