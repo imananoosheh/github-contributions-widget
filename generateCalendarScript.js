@@ -71,7 +71,6 @@ function generateCalendar() {
   calendar.innerHTML = "";
   calendarDaysTemplate.append(calendar);
   calendarComponent.append(calendarDaysTemplate);
-  document.append(calendarComponent);
 
   // Generate calendar grid
   for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
