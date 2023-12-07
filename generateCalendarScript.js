@@ -1,9 +1,21 @@
 "use strict";
 const updatingEndPointURL =
   "https://raw.githubusercontent.com/imananoosheh/github-contributions-fetch/main/gh-contributions.json";
-const contributionData = fetch(updatingEndPointURL)
-  .then((res) => res.json())
-  .then((json) => json);
+let contributionData = [];
+async function fetchData() {
+  try {
+    const response = await fetch(updatingEndPointURL);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    contributionData = data;
+  } catch (error) {
+    console.error("There was a problem with the fetch operation:", error);
+  }
+}
+
+fetchData();
 
 const monthsMap = {
   0: "Jan",
