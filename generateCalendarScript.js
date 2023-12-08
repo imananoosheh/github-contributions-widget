@@ -85,7 +85,7 @@ function generateCalendar() {
       );
       const colorIntensity = data ? data.contributionCount / 10 : 0; // Adjust color intensity based on contributionCount
       dayElement.style.backgroundColor = data ? data.color : "#ebedf0"; // Use color from data or default color
-      dayElement.setAttribute("date", currentDate);
+      dayElement.setAttribute("date", currentDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }));
       if (data) {
         dayElement.setAttribute("contributions", data.contributionCount);
       }
