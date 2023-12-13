@@ -79,7 +79,7 @@ function generateCalendar() {
       dayElement.classList.add("day");
       const currentDate = new Date();
       currentDate.setDate(currentDate.getDate() - 365 + (dayOfWeek + week * 7));
-      const currentDateISO = currentDate.toISOString().split("T")[0];
+      const currentDateISO = currentDate.toLocaleString().split(",")[0];
       const data = contributionData.find(
         (entry) => entry.date === currentDateISO
       );
