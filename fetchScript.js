@@ -1,6 +1,6 @@
-
-require("dotenv").config({ path: `${process.env.GITHUB_CONTRIBUTION_WORKING_DIR}.env` });
-const fileSystem = require("fs");
+import dotenv from "dotenv"
+dotenv.config({ path: `${process.env.GITHUB_CONTRIBUTION_WORKING_DIR}.env` });
+import { writeFile, readFile } from "fs";
 
 async function getContributions(token, username) {
   const headers = {
@@ -34,7 +34,7 @@ async function getContributions(token, username) {
     headers: headers,
   });
   const data = await response.json();
-  fileSystem.writeFile(`${process.env.GITHUB_CONTRIBUTION_WORKING_DIR}archive.json`, JSON.stringify(data), (error) => {
+  writeFile(`${process.env.GITHUB_CONTRIBUTION_WORKING_DIR}archive.json`, JSON.stringify(data), (error) => {
     if (error) {
       console.log(error);
     }
@@ -44,7 +44,7 @@ async function getContributions(token, username) {
 getContributions(process.env.GITHUB_ACCESS_TOKEN, process.env.GITHUB_USERNAME);
 
 setTimeout(() => {
-  fileSystem.readFile(`${process.env.GITHUB_CONTRIBUTION_WORKING_DIR}archive.json`, "utf-8", (err, data) => {
+  readFile(`${process.env.GITHUB_CONTRIBUTION_WORKING_DIR}archive.json`, "utf-8", (err, data) => {
     if (err) {
       console.log(err);
       return;
@@ -55,7 +55,7 @@ setTimeout(() => {
       .contributionCalendar.weeks) {
       contributionFile.push(...week["contributionDays"]);
     }
-    fileSystem.writeFile(
+    writeFile(
       `${process.env.GITHUB_CONTRIBUTION_WORKING_DIR}gh-contributions.json`,
       JSON.stringify(contributionFile),
       (err) => {
