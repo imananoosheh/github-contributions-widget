@@ -125,7 +125,7 @@ function generateCalendar() {
   .day {
     width: 17px;
     height: 17px;
-    border: 1px solid #000;
+    border: 1px solid rgba(0,255,0,0.25);
     display: flex;
     align-items: center;
     justify-content: center;
