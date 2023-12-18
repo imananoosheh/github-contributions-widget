@@ -85,8 +85,11 @@ function generateCalendar() {
 			const data = contributionData.find(
 				(entry) => entry.date === currentDateISO
 			);
-			const colorIntensity = data ? data.contributionCount / 10 : 0; // Adjust color intensity based on contributionCount
-			dayElement.style.backgroundColor = data ? data.color : "#ebedf0"; // Use color from data or default color
+      //Add gradiant proportionate to contribution count
+      if(data && data.contributionCount > 0){
+        const colorIntensity = data.contributionCount / 10 // Adjust color intensity based on contributionCount
+        dayElement.style.backgroundColor = `rgba(0, 255, 0, ${colorIntensity}` // Use color from data or default color
+      }
 			dayElement.setAttribute(
 				"date",
 				currentDate.toLocaleDateString("en-US", {
@@ -122,14 +125,13 @@ function generateCalendar() {
   .day {
     width: 17px;
     height: 17px;
-    border: 1px solid #ddd;
+    border: 1px solid #000;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     position: relative;
-    background-color: rgba(255, 255, 255, 0.4); /* Adjust background color and opacity as needed */
-    border: 1px solid rgb(255, 255, 255); /* Add a border if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust background color and opacity as needed */
   }
   .day:hover::after {
     content: attr(contributions) " contributions on " attr(date);
@@ -170,6 +172,7 @@ function generateCalendar() {
   }
   #calendar-component > h1{
     margin-bottom: 0.5rem;
+    text-align: center;
   }
   `;
 	// Apply styles to the document
