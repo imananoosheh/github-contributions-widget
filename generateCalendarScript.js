@@ -128,6 +128,8 @@ function generateCalendar() {
     justify-content: center;
     cursor: pointer;
     position: relative;
+    background-color: rgba(255, 255, 255, 0.4); /* Adjust background color and opacity as needed */
+    border: 1px solid rgb(255, 255, 255); /* Add a border if needed */
   }
   .day:hover::after {
     content: attr(contributions) " contributions on " attr(date);
@@ -135,8 +137,8 @@ function generateCalendar() {
     top: 100%;
     left: 50%;
     transform: translate(-50%, -60px);
-    background-color: rgba(255, 255, 255, 0.4); /* Adjust background color and opacity as needed */
-    border: 1px solid rgb(255, 255, 255); /* Add a border if needed */
+    background-color: rgba(255, 255, 255, 0.9); /* Adjust background color and opacity as needed */
+    border: 1px solid #ccc; /* Add a border if needed */
     padding: 5px; /* Adjust padding as needed */
     border-radius: 5px; /* Add border-radius for rounded corners if needed */
     white-space: nowrap;
