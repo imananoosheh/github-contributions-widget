@@ -1,3 +1,8 @@
+name: JsDelivrCDNPurge
+
+on:
+  push
+
 jobs:
   purge-jsdelivr-cache:
     runs-on: ubuntu-20.04
