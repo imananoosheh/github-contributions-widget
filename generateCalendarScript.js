@@ -97,7 +97,6 @@ function generateCalendar() {
 					return currentDate.toLocaleDateString()
 				}
 			}
-			console.log(currentDateLocale())
 			const data = contributionData.find(
 				(entry) => entry.date === currentDateLocale()
 			);
