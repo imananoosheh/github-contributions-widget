@@ -81,15 +81,31 @@ function generateCalendar() {
 			currentDate.setDate(
 				currentDate.getDate() - 365 + (dayOfWeek + week * 7)
 			);
-			const currentDateISO = currentDate.toLocaleString().split(",")[0];
+
+			/*
+			Due to difference in Date().toLocaleDateString() in Firefox vs Chrome
+			Firefox	-> returns "YYYY-MM-DD"
+			Chrome	-> returns "DD/MM-YYYY"
+			A date format validation is needed. Date format used in DB is as what Firefox returns
+			*/
+			const currentDateLocale = () => {
+				if(currentDate.toLocaleDateString().split("-").length === 1){
+					// The Browser is Chrome
+					return currentDate.toLocaleDateString().split('/').reverse().join('-')
+				}else{
+					// The Browser is Firefox
+					return currentDate.toLocaleDateString()
+				}
+			}
+			console.log(currentDateLocale())
 			const data = contributionData.find(
-				(entry) => entry.date === currentDateISO
+				(entry) => entry.date === currentDateLocale()
 			);
-      //Add gradiant proportionate to contribution count
-      if(data && data.contributionCount > 0){
-        const colorIntensity = data.contributionCount / 10 // Adjust color intensity based on contributionCount
-        dayElement.style.backgroundColor = `rgba(0, 255, 0, ${colorIntensity}` // Use color from data or default color
-      }
+			//Add gradiant proportionate to contribution count
+			if (data && data.contributionCount > 0) {
+				const colorIntensity = data.contributionCount / 10; // Adjust color intensity based on contributionCount
+				dayElement.style.backgroundColor = `rgba(0, 255, 0, ${colorIntensity}`; // Use color from data or default color
+			}
 			dayElement.setAttribute(
 				"date",
 				currentDate.toLocaleDateString("en-US", {
@@ -178,7 +194,7 @@ function generateCalendar() {
 	// Apply styles to the document
 	const styleElement = document.createElement("style");
 	styleElement.textContent = styles;
-  document.head.appendChild(styleElement);
+	document.head.appendChild(styleElement);
 }
 
 fetchData();
