@@ -89,14 +89,18 @@ function generateCalendar() {
 			A date format validation is needed. Date format used in DB is as what Firefox returns
 			*/
 			const currentDateLocale = () => {
-				if(currentDate.toLocaleDateString().split("-").length === 1){
-					// The Browser is Chrome
-					return currentDate.toLocaleDateString().split('/').reverse().join('-')
-				}else{
+				if (currentDate.toLocaleDateString().split("-").length === 1) {
+					// The Browser is Chrome ---converting-to---> "YYYY-MM-DD"
+					return currentDate
+						.toLocaleDateString()
+						.split("/")
+						.reverse()
+						.join("-");
+				} else {
 					// The Browser is Firefox
-					return currentDate.toLocaleDateString()
+					return currentDate.toLocaleDateString();
 				}
-			}
+			};
 			const data = contributionData.find(
 				(entry) => entry.date === currentDateLocale()
 			);
