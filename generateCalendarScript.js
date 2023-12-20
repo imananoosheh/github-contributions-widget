@@ -203,5 +203,3 @@ function generateCalendar() {
 	styleElement.textContent = styles;
 	document.head.appendChild(styleElement);
 }
-
-fetchData();
