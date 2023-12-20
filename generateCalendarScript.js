@@ -121,6 +121,9 @@ function generateCalendar() {
 					"contributions",
 					data.contributionCount
 				);
+				if(data.contributionCount >= 10){
+					dayElement.textContent = '+'
+				}
 			}
 			const today = new Date();
 			if (currentDate > today) {
@@ -165,6 +168,7 @@ function generateCalendar() {
     white-space: nowrap;
     color: #121212;
     z-index: 5;
+	color: white;
   }
   .calendar-wrapper {
     display: flex;
