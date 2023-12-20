@@ -153,7 +153,8 @@ function generateCalendar() {
     justify-content: center;
     cursor: pointer;
     position: relative;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust background color and opacity as needed */
+    background-color: rgba(0, 0, 0, 0.5);
+	color: white;
   }
   .day:hover::after {
     content: attr(contributions) " contributions on " attr(date);
@@ -161,14 +162,13 @@ function generateCalendar() {
     top: 100%;
     left: 50%;
     transform: translate(-50%, -60px);
-    background-color: rgba(255, 255, 255, 0.9); /* Adjust background color and opacity as needed */
-    border: 1px solid #ccc; /* Add a border if needed */
-    padding: 5px; /* Adjust padding as needed */
-    border-radius: 5px; /* Add border-radius for rounded corners if needed */
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
     white-space: nowrap;
     color: #121212;
     z-index: 5;
-	color: white;
   }
   .calendar-wrapper {
     display: flex;
