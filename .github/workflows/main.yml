@@ -10,4 +10,6 @@ jobs:
       - uses: gacts/purge-jsdelivr-cache@v1
         with:
           url: |
+            https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch/generateCalendarScript.js
+            https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch@main/generateCalendarScript.js
             https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch@latest/generateCalendarScript.js
