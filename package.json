@@ -1,6 +1,17 @@
 {
+  "name": "github-contributions-fetch",
+  "description": "This Node.js script fetches GitHub contribution data using the GitHub GraphQL API, saves it to a local file, and pushes the updated data to a specified GitHub repository. The script is useful for tracking GitHub contributions over time.",
   "type": "module",
+  "version": "1.0.0",
+  "main": "fetchScript.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Iman Anooshehpour",
+  "license": "ISC",
   "dependencies": {
+    "express": "^4.18.2",
     "dotenv": "^16.3.1"
   }
 }
