@@ -1,12 +1,12 @@
 // server.js
 "use strict";
-import JSDOM from 'jsdom'
+import JSDOM from "jsdom";
 import dotenv from "dotenv";
 import express from "express";
 const app = express();
 dotenv.config();
 
-const dom =  new JSDOM()
+const dom = new JSDOM();
 
 const document = dom.window.document;
 
@@ -230,8 +230,11 @@ function generateCalendar(contributionData) {
     text-align: center;
   }
   `;
-
-	return [calendarComponent, styles];
+	document.appendChild(calendarComponent);
+	// Apply styles to the document
+	const styleElement = document.createElement("style");
+	styleElement.textContent = styles;
+	document.head.appendChild(styleElement);
 }
 
 // Run Server
@@ -246,23 +249,9 @@ app.get("/github_calendar/:username", async (req, res) => {
 			// Handle the error, return or do something else
 			return res.status(404).send("No contribution data available.");
 		}
-		let [calendarComponent, styles] = generateCalendar(contributionData);
-		let htmlTemplate = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>GitHub Calendar</title>
-            <style>${styles}</style>
-        </head>
-        <body>
-            ${calendarComponent}
-        </body>
-        </html>
-        `;
+		generateCalendar(contributionData);
 		// Return the result to the user
-		res.send(htmlTemplate);
+		res.send(document);
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
 		// Handle the error, return or do something else
