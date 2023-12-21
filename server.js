@@ -3,7 +3,7 @@
 import dotenv from "dotenv";
 import express from "express";
 const app = express();
-dotenv.config()
+dotenv.config();
 
 const accessToken = process.env.GITHUB_ACCESS_TOKEN;
 
@@ -21,15 +21,6 @@ const monthsMap = {
 	10: "Nov",
 	11: "Dec",
 };
-
-app.get("/github_calendar/:username", (req, res) => {
-	const username = req.params.username;
-
-	const contributionData = getContributions(accessToken, username);
-    const htmlDoc = generateCalendar(contributionData)
-	// Return the result to the user
-	res.send(htmlDoc)
-});
 
 async function getContributions(token, username) {
 	const headers = {
@@ -69,18 +60,19 @@ async function getContributions(token, username) {
 		.contributionCalendar.weeks) {
 		contributionData.push(...week["contributionDays"]);
 	}
+
 	return contributionData;
 }
 
 function generateCalendar(contributionData) {
 	const startingMonth = new Date(contributionData[0]["date"]).getMonth();
 
-    //create a new document 
-    const pageDocument = document.createDocumentFragment()
+	//create a new document
+	const pageDocument = document.createDocumentFragment();
 	// component creation steps happends here
 	const calendarComponent = document.createElement("div");
-    calendarComponent.id = "calendar-component"
-    pageDocument.append(calendarComponent)
+	calendarComponent.id = "calendar-component";
+	pageDocument.append(calendarComponent);
 	const calendarHeader = document.createElement("h1");
 	calendarHeader.textContent = "GitHub Activity Calendar";
 	calendarComponent.append(calendarHeader);
@@ -242,10 +234,31 @@ function generateCalendar(contributionData) {
 	styleElement.textContent = styles;
 	pageDocument.head.appendChild(styleElement);
 
-    return pageDocument
+	return pageDocument;
 }
 
 // Run Server
+
+app.get("/github_calendar/:username", async (req, res) => {
+	const username = req.params.username;
+
+	try {
+		const contributionData = await getContributions(accessToken, username);
+		if (!contributionData || contributionData.length === 0) {
+			console.error("No contribution data available.");
+			// Handle the error, return or do something else
+			return res.status(404).send("No contribution data available.");
+		}
+        const htmlDoc = generateCalendar(contributionData);
+        // Return the result to the user
+        res.send(htmlDoc);
+	} catch (error) {
+		console.error("Error fetching contribution data:", error);
+		// Handle the error, return or do something else
+		res.status(500).send("Error fetching contribution data.");
+	}
+});
+
 const PORT = process.env.SERVER_PORT;
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
