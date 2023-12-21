@@ -66,13 +66,9 @@ async function getContributions(token, username) {
 
 function generateCalendar(contributionData) {
 	const startingMonth = new Date(contributionData[0]["date"]).getMonth();
-
-	//create a new document
-	const pageDocument = document.createDocumentFragment();
 	// component creation steps happends here
 	const calendarComponent = document.createElement("div");
 	calendarComponent.id = "calendar-component";
-	pageDocument.append(calendarComponent);
 	const calendarHeader = document.createElement("h1");
 	calendarHeader.textContent = "GitHub Activity Calendar";
 	calendarComponent.append(calendarHeader);
@@ -229,12 +225,8 @@ function generateCalendar(contributionData) {
     text-align: center;
   }
   `;
-	// Apply styles to the document
-	const styleElement = document.createElement("style");
-	styleElement.textContent = styles;
-	pageDocument.head.appendChild(styleElement);
 
-	return pageDocument;
+	return [calendarComponent, styles];
 }
 
 // Run Server
@@ -249,9 +241,23 @@ app.get("/github_calendar/:username", async (req, res) => {
 			// Handle the error, return or do something else
 			return res.status(404).send("No contribution data available.");
 		}
-        const htmlDoc = generateCalendar(contributionData);
-        // Return the result to the user
-        res.send(htmlDoc);
+		let [calendarComponent, styles] = generateCalendar(contributionData);
+		let htmlTemplate = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>GitHub Calendar</title>
+            <style>${styles}</style>
+        </head>
+        <body>
+            ${calendarComponent}
+        </body>
+        </html>
+        `;
+		// Return the result to the user
+		res.send(htmlTemplate);
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
 		// Handle the error, return or do something else
