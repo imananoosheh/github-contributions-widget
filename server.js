@@ -1,11 +1,12 @@
 // server.js
 "use strict";
-import JSDOM from "jsdom";
+import jsdom from "jsdom";
 import dotenv from "dotenv";
 import express from "express";
 const app = express();
 dotenv.config();
 
+const { JSDOM } = jsdom;
 const dom = new JSDOM();
 
 const document = dom.window.document;
