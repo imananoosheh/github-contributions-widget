@@ -1,9 +1,14 @@
 // server.js
 "use strict";
+import JSDOM from 'jsdom'
 import dotenv from "dotenv";
 import express from "express";
 const app = express();
 dotenv.config();
+
+const dom =  new JSDOM()
+
+const document = dom.window.document;
 
 const accessToken = process.env.GITHUB_ACCESS_TOKEN;
 
