@@ -198,15 +198,17 @@ function generateCalendar(contributionData) {
   .months {
     display: flex;
     flex-direction: row;
-    justify-content: left;
-    margin-left: 2rem;
+    justify-content: start;
+    margin-left: 3rem;
   }
   .month {
-    width: 76px;
+    width: 4.75rem;
+	text-align: center;
   }
   #calendar-component{
     margin: 3rem 0;
     font-size: 14px;
+	width: fit-content;
   }
   #calendar-component > h1{
     margin-bottom: 0.5rem;
