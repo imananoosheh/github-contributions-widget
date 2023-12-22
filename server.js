@@ -115,27 +115,9 @@ function generateCalendar(contributionData) {
 				currentDate.getDate() - 365 + (dayOfWeek + week * 7)
 			);
 
-			/*
-			Due to difference in Date().toLocaleDateString() in Firefox vs Chrome
-			Firefox	-> returns "YYYY-MM-DD"
-			Chrome	-> returns "DD/MM-YYYY"
-			A date format validation is needed. Date format used in DB is as what Firefox returns
-			*/
-			const currentDateLocale = () => {
-				if (currentDate.toLocaleDateString().split("-").length === 1) {
-					// The Browser is Chrome ---converting-to---> "YYYY-MM-DD"
-					return currentDate
-						.toLocaleDateString()
-						.split("/")
-						.reverse()
-						.join("-");
-				} else {
-					// The Browser is Firefox
-					return currentDate.toLocaleDateString();
-				}
-			};
+			const currentISODate = currentDate.toISOString().split('T')[0]
 			const data = contributionData.find(
-				(entry) => entry.date === currentDateLocale()
+				(entry) => entry.date === currentISODate
 			);
 			//Add gradiant proportionate to contribution count
 			if (data && data.contributionCount > 0) {
@@ -231,7 +213,7 @@ function generateCalendar(contributionData) {
     text-align: center;
   }
   `;
-	document.appendChild(calendarComponent);
+	document.body.appendChild(calendarComponent);
 	// Apply styles to the document
 	const styleElement = document.createElement("style");
 	styleElement.textContent = styles;
