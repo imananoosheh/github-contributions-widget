@@ -115,14 +115,17 @@ function generateCalendar(contributionData) {
 				currentDate.getDate() - 365 + (dayOfWeek + week * 7)
 			);
 
-			const currentISODate = currentDate.toISOString().split('T')[0]
+			const currentISODate = currentDate.toISOString().split("T")[0];
 			const data = contributionData.find(
 				(entry) => entry.date === currentISODate
 			);
 			//Add gradiant proportionate to contribution count
 			if (data && data.contributionCount > 0) {
 				const colorIntensity = data.contributionCount / 10; // Adjust color intensity based on contributionCount
-				dayElement.setAttribute('style', `background-color:rgba(0, 255, 0, ${colorIntensity}`) // Use color from data or default color
+				dayElement.setAttribute(
+					"style",
+					`background-color:rgba(0, 255, 0, ${colorIntensity}`
+				); // Use color from data or default color
 			}
 			dayElement.setAttribute(
 				"date",
@@ -150,6 +153,10 @@ function generateCalendar(contributionData) {
 	}
 
 	const styles = `
+  body{
+	background-color: #121212;
+  	color: #0f0;
+  }
   #calendar {
     display: grid;
     /* 53 columns for each week in a year */
@@ -207,7 +214,7 @@ function generateCalendar(contributionData) {
   }
   #calendar-component{
     margin: 3rem 0;
-    font-size: 14px;
+    font-size: 1rem;
 	width: fit-content;
   }
   #calendar-component > h1{
@@ -237,6 +244,7 @@ app.get("/github_calendar/:username", async (req, res) => {
 		generateCalendar(contributionData);
 		// Return the result to the user
 		res.send(dom.serialize());
+		document.body.innerHTML = "";
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
 		// Handle the error, return or do something else
