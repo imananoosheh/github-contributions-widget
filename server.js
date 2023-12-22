@@ -122,7 +122,7 @@ function generateCalendar(contributionData) {
 			//Add gradiant proportionate to contribution count
 			if (data && data.contributionCount > 0) {
 				const colorIntensity = data.contributionCount / 10; // Adjust color intensity based on contributionCount
-				dayElement.style.backgroundColor = `rgba(0, 255, 0, ${colorIntensity}`; // Use color from data or default color
+				dayElement.setAttribute('style', `background-color:rgba(0, 255, 0, ${colorIntensity}`) // Use color from data or default color
 			}
 			dayElement.setAttribute(
 				"date",
@@ -245,4 +245,4 @@ app.get("/github_calendar/:username", async (req, res) => {
 const PORT = process.env.SERVER_PORT;
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
-});dom
+});
