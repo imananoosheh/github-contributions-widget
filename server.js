@@ -7,7 +7,7 @@ const app = express();
 dotenv.config();
 
 const { JSDOM } = jsdom;
-const dom = new JSDOM();
+const dom = new JSDOM(`<!DOCTYPE html>`);
 
 const document = dom.window.document;
 
@@ -234,7 +234,7 @@ app.get("/github_calendar/:username", async (req, res) => {
 		}
 		generateCalendar(contributionData);
 		// Return the result to the user
-		res.send(document);
+		res.send(dom.serialize());
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
 		// Handle the error, return or do something else
@@ -245,4 +245,4 @@ app.get("/github_calendar/:username", async (req, res) => {
 const PORT = process.env.SERVER_PORT;
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
-});
+});dom
