@@ -112,14 +112,14 @@ function renderCalendar(contributionData, options) {
     width: 17px;
     height: 17px;
     border: 1px solid ${options['themeColor']};
-    opacity: 0.25
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     position: relative;
     background-color: rgba(0, 0, 0, 0.5);
-	color: white;
+	color: black;
+	font-weight: bold;
   }
   .day:hover::after {
     content: attr(contributions) " contributions on " attr(date);
