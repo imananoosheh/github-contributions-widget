@@ -63,7 +63,6 @@ app.get("/github_calendar/:username", async (req, res) => {
 		}
 		// Return the result to the user
 		res.send(JSON.stringify(contributionData));
-		document.body.innerHTML = "";
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
 		// Handle the error, return or do something else
