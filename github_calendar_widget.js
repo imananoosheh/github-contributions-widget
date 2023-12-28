@@ -229,28 +229,27 @@ async function generateCalendar(username, options) {
 }
 
 function initGitHubCalendar() {
-	while (document.getElementById("calendar-component") === null) {
-		setTimeout(() => {
-			console.log(
-				"Waiting for DOM to load everything before we start generating your Github Activity Calendar ;)"
-			);
-		}, 50);
-	}
 	const calendarComponent = document.getElementById("calendar-component");
-	const username = calendarComponent.getAttribute("username");
-	const themeColor = calendarComponent.getAttribute("theme-color");
-	const backgroundColor = calendarComponent.getAttribute("background-color");
-	const options = {
-		themeColor: themeColor === null ? "#00ff00" : themeColor,
-		backgroundColor: backgroundColor === null ? "#121212" : backgroundColor,
-	};
-	if (username.length > 0) {
-		generateCalendar(username, options);
-	} else {
-		console.error(
-			"Username was not provided!\n",
-			`username fetched:${username}\n`
-		);
+	if (calendarComponent) {
+		const username = calendarComponent.getAttribute("username");
+		const themeColor = calendarComponent.getAttribute("theme-color");
+		const backgroundColor =
+			calendarComponent.getAttribute("background-color");
+		const options = {
+			themeColor: themeColor === null ? "#00ff00" : themeColor,
+			backgroundColor:
+				backgroundColor === null ? "#121212" : backgroundColor,
+		};
+		if (username.length > 0) {
+			generateCalendar(username, options);
+		} else {
+			console.error(
+				"Username was not provided!\n",
+				`username fetched:${username}\n`
+			);
+		}
+	}else{
+		setTimeout(initGitHubCalendar(), 200)
 	}
 }
 initGitHubCalendar();
