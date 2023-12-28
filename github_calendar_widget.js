@@ -14,7 +14,7 @@ const monthsMap = {
 	11: "Dec",
 };
 
-function renderCalendar(contributionData) {
+function renderCalendar(contributionData, options) {
 	const startingMonth = new Date(contributionData[0]["date"]).getMonth();
 	const calendarComponent = document.getElementById("calendar-component");
 	const calendarHeader = document.createElement("h1");
@@ -66,7 +66,7 @@ function renderCalendar(contributionData) {
 				const colorIntensity = data.contributionCount / 10; // Adjust color intensity based on contributionCount
 				dayElement.setAttribute(
 					"style",
-					`background-color:rgba(0, 255, 0, ${colorIntensity}`
+					`background-color:${options['themeColor']}; opacity: ${Math.min(colorIntensity, 1)};`
 				); // Use color from data or default color
 			}
 			dayElement.setAttribute(
@@ -96,8 +96,8 @@ function renderCalendar(contributionData) {
 
 	const styles = `
   body{
-	background-color: #121212;
-  	color: #0f0;
+	background-color: ${options['backgroundColor']};
+  	color: ${options['themeColor']};
   }
   #calendar {
     display: grid;
@@ -111,7 +111,8 @@ function renderCalendar(contributionData) {
   .day {
     width: 17px;
     height: 17px;
-    border: 1px solid rgba(0,255,0,0.25);
+    border: 1px solid ${options['themeColor']};
+    opacity: 0.25
     display: flex;
     align-items: center;
     justify-content: center;
@@ -131,7 +132,7 @@ function renderCalendar(contributionData) {
     padding: 5px;
     border-radius: 5px;
     white-space: nowrap;
-    color: #121212;
+    color: ${options['backgroundColor']};
     z-index: 5;
   }
   .calendar-wrapper {
@@ -194,7 +195,7 @@ async function fetchDataFromServer(username) {
 }
 
 // Call this function to fetch data and generate the calendar on the frontend
-async function generateCalendar(username) {
+async function generateCalendar(username, options) {
 	try {
 		const contributionData = await fetchDataFromServer(username);
 		if (!contributionData || contributionData.length === 0) {
@@ -203,7 +204,7 @@ async function generateCalendar(username) {
 			return;
 		}
 
-		renderCalendar(contributionData);
+		renderCalendar(contributionData, options);
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
 		// Handle the error or do something else
@@ -213,8 +214,14 @@ async function generateCalendar(username) {
 function initGitHubCalendar() {
     const calendarComponent = document.getElementById("calendar-component");
 	const username = calendarComponent.getAttribute("username");
+    const themeColor = calendarComponent.getAttribute('theme-color')
+    const backgroundColor = calendarComponent.getAttribute('background-color')
+    const options = {
+        'themeColor': themeColor===null ? '#0f0' : themeColor,
+        'backgroundColor': backgroundColor===null ? '#121212' : backgroundColor
+    }
 	if (username.length > 0) {
-		generateCalendar(username);
+		generateCalendar(username, options);
 	} else {
 		console.error(
 			"Username was not provided!\n",
