@@ -5,8 +5,15 @@ import express from "express";
 const app = express();
 dotenv.config();
 
-const accessToken = process.env.GITHUB_ACCESS_TOKEN;
+app.use(function (req, res, next) {
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Access-Control-Allow-Methods", "GET");
+	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+	res.setHeader("Access-Control-Allow-Credentials", true);
+	next();
+});
 
+const accessToken = process.env.GITHUB_ACCESS_TOKEN;
 
 async function getContributions(token, username) {
 	const headers = {
