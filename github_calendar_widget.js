@@ -211,6 +211,7 @@ async function generateCalendar(username) {
 }
 
 function initGitHubCalendar() {
+    const calendarComponent = document.getElementById("calendar-component");
 	const username = calendarComponent.getAttribute("username");
 	if (username.length > 0) {
 		generateCalendar(username);
