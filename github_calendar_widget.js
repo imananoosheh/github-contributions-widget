@@ -194,7 +194,7 @@ async function fetchDataFromServer(username) {
 }
 
 // Call this function to fetch data and generate the calendar on the frontend
-async function initGitHubCalendar(username) {
+async function generateCalendar(username) {
 	try {
 		const contributionData = await fetchDataFromServer(username);
 		if (!contributionData || contributionData.length === 0) {
@@ -210,12 +210,15 @@ async function initGitHubCalendar(username) {
 	}
 }
 
-const username = calendarComponent.getAttribute("username");
-if (username.length > 0) {
-	initGitHubCalendar(username);
-} else {
-	console.error(
-		"Username was not provided!\n",
-		`username fetched:${username}\n`
-	);
+function initGitHubCalendar() {
+	const username = calendarComponent.getAttribute("username");
+	if (username.length > 0) {
+		generateCalendar(username);
+	} else {
+		console.error(
+			"Username was not provided!\n",
+			`username fetched:${username}\n`
+		);
+	}
 }
+initGitHubCalendar();
