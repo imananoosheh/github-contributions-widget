@@ -1,27 +1,4 @@
-"use strict";
-const updatingEndPointURL =
-	"https://raw.githubusercontent.com/imananoosheh/github-contributions-fetch/main/gh-contributions.json";
-let contributionData = [];
-async function fetchData() {
-	try {
-		const response = await fetch(updatingEndPointURL);
-		if (!response.ok) {
-			throw new Error("Network response was not ok");
-		}
-		const data = await response.json();
-		contributionData = data;
-		if (contributionData.length > 0) {
-			generateCalendar();
-		} else {
-			console.log(
-				`Data fethed is empty!...\ncontributionData:${contributionData}`
-			);
-		}
-	} catch (error) {
-		console.error("There was a problem with the fetch operation:", error);
-	}
-}
-
+// github_calendar_widget.js
 const monthsMap = {
 	0: "Jan",
 	1: "Feb",
@@ -37,10 +14,8 @@ const monthsMap = {
 	11: "Dec",
 };
 
-function generateCalendar() {
+function renderCalendar(contributionData, options) {
 	const startingMonth = new Date(contributionData[0]["date"]).getMonth();
-
-	// component creation steps happends here
 	const calendarComponent = document.getElementById("calendar-component");
 	const calendarHeader = document.createElement("h1");
 	calendarHeader.textContent = "GitHub Activity Calendar";
@@ -82,32 +57,17 @@ function generateCalendar() {
 				currentDate.getDate() - 365 + (dayOfWeek + week * 7)
 			);
 
-			/*
-			Due to difference in Date().toLocaleDateString() in Firefox vs Chrome
-			Firefox	-> returns "YYYY-MM-DD"
-			Chrome	-> returns "DD/MM-YYYY"
-			A date format validation is needed. Date format used in DB is as what Firefox returns
-			*/
-			const currentDateLocale = () => {
-				if (currentDate.toLocaleDateString().split("-").length === 1) {
-					// The Browser is Chrome ---converting-to---> "YYYY-MM-DD"
-					return currentDate
-						.toLocaleDateString()
-						.split("/")
-						.reverse()
-						.join("-");
-				} else {
-					// The Browser is Firefox
-					return currentDate.toLocaleDateString();
-				}
-			};
+			const currentISODate = currentDate.toISOString().split("T")[0];
 			const data = contributionData.find(
-				(entry) => entry.date === currentDateLocale()
+				(entry) => entry.date === currentISODate
 			);
 			//Add gradiant proportionate to contribution count
 			if (data && data.contributionCount > 0) {
 				const colorIntensity = data.contributionCount / 10; // Adjust color intensity based on contributionCount
-				dayElement.style.backgroundColor = `rgba(0, 255, 0, ${colorIntensity}`; // Use color from data or default color
+				dayElement.setAttribute(
+					"style",
+					`background-color:${options['themeColor']}; opacity: ${Math.min(colorIntensity, 1)};`
+				); // Use color from data or default color
 			}
 			dayElement.setAttribute(
 				"date",
@@ -121,8 +81,8 @@ function generateCalendar() {
 					"contributions",
 					data.contributionCount
 				);
-				if(data.contributionCount >= 10){
-					dayElement.textContent = '+'
+				if (data.contributionCount >= 10) {
+					dayElement.textContent = "+";
 				}
 			}
 			const today = new Date();
@@ -135,6 +95,10 @@ function generateCalendar() {
 	}
 
 	const styles = `
+  body{
+	background-color: ${options['backgroundColor']};
+  	color: ${options['themeColor']};
+  }
   #calendar {
     display: grid;
     /* 53 columns for each week in a year */
@@ -147,7 +111,8 @@ function generateCalendar() {
   .day {
     width: 17px;
     height: 17px;
-    border: 1px solid rgba(0,255,0,0.25);
+    border: 1px solid ${options['themeColor']};
+    opacity: 0.25
     display: flex;
     align-items: center;
     justify-content: center;
@@ -167,7 +132,7 @@ function generateCalendar() {
     padding: 5px;
     border-radius: 5px;
     white-space: nowrap;
-    color: #121212;
+    color: ${options['backgroundColor']};
     z-index: 5;
   }
   .calendar-wrapper {
@@ -183,15 +148,17 @@ function generateCalendar() {
   .months {
     display: flex;
     flex-direction: row;
-    justify-content: left;
-    margin-left: 2rem;
+    justify-content: start;
+    margin-left: 3rem;
   }
   .month {
-    width: 76px;
+    width: 4.75rem;
+	text-align: center;
   }
   #calendar-component{
     margin: 3rem 0;
-    font-size: 14px;
+    font-size: 1rem;
+	width: fit-content;
   }
   #calendar-component > h1{
     margin-bottom: 0.5rem;
@@ -203,3 +170,63 @@ function generateCalendar() {
 	styleElement.textContent = styles;
 	document.head.appendChild(styleElement);
 }
+
+//fetching data from API
+async function fetchDataFromServer(username) {
+	const response = await fetch(
+		`https://nulljuju.dev/github_calendar/${username}`,
+		{
+			method: "GET", // *GET, POST, PUT, DELETE, etc.
+			mode: "cors", // no-cors, *cors, same-origin
+			cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+			credentials: "same-origin", // include, *same-origin, omit
+			headers: {
+				"Content-Type": "application/json",
+				// 'Content-Type': 'application/x-www-form-urlencoded',
+			},
+		}
+	);
+	const data = await response.json();
+	if (data && response.status === 200) {
+		return data;
+	} else {
+		console.error("Error in fetching GitHub data from server");
+	}
+}
+
+// Call this function to fetch data and generate the calendar on the frontend
+async function generateCalendar(username, options) {
+	try {
+		const contributionData = await fetchDataFromServer(username);
+		if (!contributionData || contributionData.length === 0) {
+			console.error("No contribution data available.");
+			// Handle the error or do something else
+			return;
+		}
+
+		renderCalendar(contributionData, options);
+	} catch (error) {
+		console.error("Error fetching contribution data:", error);
+		// Handle the error or do something else
+	}
+}
+
+function initGitHubCalendar() {
+    const calendarComponent = document.getElementById("calendar-component");
+	const username = calendarComponent.getAttribute("username");
+    const themeColor = calendarComponent.getAttribute('theme-color')
+    const backgroundColor = calendarComponent.getAttribute('background-color')
+    const options = {
+        'themeColor': themeColor===null ? '#0f0' : themeColor,
+        'backgroundColor': backgroundColor===null ? '#121212' : backgroundColor
+    }
+	if (username.length > 0) {
+		generateCalendar(username, options);
+	} else {
+		console.error(
+			"Username was not provided!\n",
+			`username fetched:${username}\n`
+		);
+	}
+}
+initGitHubCalendar();
