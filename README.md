@@ -1,87 +1,82 @@
-# GitHub Contributions Fetcher
+# GitHub Contribution Calendar Widget
 
-This Node.js script fetches GitHub contribution data using the GitHub GraphQL API, saves it to a local file, and pushes the updated data to a specified GitHub repository. The script is useful for tracking GitHub contributions over time.
+Welcome to the GitHub Contribution Calendar Widget! This widget allows you to display a GitHub-like contribution calendar on your website, showcasing a user's activity over the past year.
 
-## Prerequisites
+## Frontend Usage (github_calendar_widget.js)
 
-Before running the script, make sure you have the following:
+To include the GitHub Contribution Calendar Widget on your webpage, follow these steps:
 
-- Node.js installed
-- GitHub personal access token with the necessary permissions
+1. **Include the Script:**
 
-## Getting Started
+   Add the following script tag to the `<head>` section of your HTML file. This will include the GitHub Contribution Calendar Widget script hosted on jsDelivr.
 
-1. Clone the repository:
-
-    ```bash
-    git clone https://github.com/imananoosheh/github-contributions-fetch.git
-    cd github-contributions-fetch
-    ```
-
-2. Create a `.env` file in the root directory with the following content:
-
-    ```bash
-    GITHUB_ACCESS_TOKEN=your-github-token
-    GITHUB_USERNAME=your-github-username
-    ```
-
-3. Install dependencies:
-
-    ```bash
-    npm install
-    ```
-
-4. Run the script:
-
-    ```bash
-    node fetch_push_automation.js /path/to/your/repository/
-    ```
-
-    Replace `/path/to/your/repository/` with the path to the local repository where you want to store the contribution data.
-
-## Features
-
-- Fetches GitHub contribution data using the GitHub GraphQL API.
-- Saves the data to a local JSON file (`gh-contributions.json`).
-- Commits and pushes the updated file to a specified GitHub repository.
-
-## Notes
-
-- The script uses the provided GitHub personal access token for authentication.
-- Make sure to keep your access token and repository information secure.
-- Adjust the script as needed for your specific use case.
-
-## Automate with Cron (optional)
-
-Optionally, you can schedule the script to run at specified intervals using `cron`. Follow these steps to add the script to your crontab:
-
-1. Open your crontab configuration:
-
-   ```bash
-   crontab -e
+   ```html
+   <script defer src="https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch@latest/github_calendar_widget.js"></script>
    ```
 
-2. Add the following line to run the script every 12 hours:
+2. **Create a Container:**
 
-   ```bash
-   0 0,12 * * * /path/to/node /path/to/your/repository/fetch_push_automation.js /path/to/your/repository/
+   Add a container `<div>` in the body of your HTML to hold the calendar. Provide an `id` for the container and specify the GitHub username using the `username` attribute:
+
+   ```html
+   <div id="calendar-component" username="github-username"></div>
    ```
 
-   - Replace `/path/to/node` with the path to your Node.js executable (you can find it by running `which node`).
-   - Replace `/path/to/your/repository/` with the path to the local repository where you want to store the contribution data.
+3. **Customization (Optional):**
 
-   You can customize the cron schedule according to your preferences. Use [Crontab Guru](https://crontab.guru/) to help you generate cron schedule expressions.
+   You can customize the appearance of the calendar by adding optional attributes to the container `<div>`. For example, to set the theme color, use the `theme-color` attribute:
 
-3. Save the crontab file.
+   ```html
+   <div id="calendar-component" username="github-username" theme-color="#4285f4"></div>
+   ```
 
-   Note: Ensure that the user running the cron job has the necessary permissions to execute the script and write to the specified directory.
+   Available attributes:
+   - `theme-color`: The main color of the calendar.
+   - `background-color`: The background color of the calendar.
 
-Now, the script will run automatically at the scheduled intervals, updating your GitHub contributions data without manual intervention.
+## Backend Deployment (server.js)
 
-Feel free to adjust the instructions based on your preferences and the specific needs of your project.
+If you want to deploy the backend server on your own server, follow these steps:
 
-## License
+1. **Clone the Repository:**
 
-This project is licensed under the [MIT License](LICENSE).
+   Clone this repository to your server:
 
-Feel free to customize the README to include more details about your project or additional instructions based on your use case.
+   ```bash
+   git clone https://github.com/your-username/your-repo.git
+   ```
+
+2. **Install Dependencies:**
+
+   Navigate to the project folder and install the required dependencies:
+
+   ```bash
+   cd your-repo
+   npm install
+   ```
+
+3. **Configure Environment Variables:**
+
+   Create a `.env` file in the project root and set your GitHub access token:
+
+   ```env
+   GITHUB_ACCESS_TOKEN=your-github-access-token
+   SERVER_PORT=3000
+   ```
+
+4. **Start the Server:**
+
+   Run the following command to start the Express server:
+
+   ```bash
+   npm start
+   ```
+
+   The server will be running on the specified port (default is 3000).
+
+5. **API Endpoint:**
+
+   Your API endpoint will be accessible at `http://your-server-domain-or-ip/github_calendar/:username`. Make sure to update your GitHub widget script with this URL.
+
+---
+Now, users can import your GitHub Contribution Calendar Widget script on their webpage and customize the appearance as needed. Additionally, you can deploy the backend server on your own server to provide the necessary data. Happy coding!
