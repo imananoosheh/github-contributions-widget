@@ -229,27 +229,29 @@ async function generateCalendar(username, options) {
 }
 
 function initGitHubCalendar() {
-	const calendarComponent = document.getElementById("calendar-component");
-	if (calendarComponent) {
-		const username = calendarComponent.getAttribute("username");
-		const themeColor = calendarComponent.getAttribute("theme-color");
-		const backgroundColor =
-			calendarComponent.getAttribute("background-color");
-		const options = {
-			themeColor: themeColor === null ? "#00ff00" : themeColor,
-			backgroundColor:
-				backgroundColor === null ? "#121212" : backgroundColor,
-		};
-		if (username.length > 0) {
-			generateCalendar(username, options);
+	document.addEventListener("DOMContentLoaded", () => {
+		const calendarComponent = document.getElementById("calendar-component");
+		if (calendarComponent) {
+			const username = calendarComponent.getAttribute("username");
+			const themeColor = calendarComponent.getAttribute("theme-color");
+			const backgroundColor =
+				calendarComponent.getAttribute("background-color");
+			const options = {
+				themeColor: themeColor === null ? "#00ff00" : themeColor,
+				backgroundColor:
+					backgroundColor === null ? "#121212" : backgroundColor,
+			};
+			if (username.length > 0) {
+				generateCalendar(username, options);
+			} else {
+				console.error(
+					"Username was not provided!\n",
+					`username fetched:${username}\n`
+				);
+			}
 		} else {
-			console.error(
-				"Username was not provided!\n",
-				`username fetched:${username}\n`
-			);
+			setTimeout(initGitHubCalendar(), 200);
 		}
-	}else{
-		setTimeout(initGitHubCalendar(), 200)
-	}
+	});
 }
 initGitHubCalendar();
