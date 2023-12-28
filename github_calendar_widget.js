@@ -47,6 +47,22 @@ function renderCalendar(contributionData, options) {
 	calendarDaysTemplate.append(calendar);
 	calendarComponent.append(calendarDaysTemplate);
 
+	function floatToHex(floatingNumber) {
+		//Ensuring more than threshold gets colored with no opacity (FF <===> alpha-value: 0)
+		if (floatingNumber >= 1) {
+			return "FF";
+		}
+		// Ensure the input is in the valid range
+		if (floatingNumber < 0) {
+			throw new Error("Input must be in the range of 0.00 to 1.00");
+		}
+		// Convert the floating-point number to an integer in the range 0 to 255
+		const intValue = Math.round(floatingNumber * 255);
+		// Convert the integer to a hexadecimal string
+		const hexString = intValue.toString(16).padStart(2, "0").toUpperCase();
+		return hexString;
+	}
+
 	// Generate calendar grid
 	for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
 		for (let week = 0; week < 53; week++) {
@@ -63,10 +79,12 @@ function renderCalendar(contributionData, options) {
 			);
 			//Add gradiant proportionate to contribution count
 			if (data && data.contributionCount > 0) {
-				const colorIntensity = data.contributionCount / 10; // Adjust color intensity based on contributionCount
+				const colorIntensity = data.contributionCount / 100; // Adjust color intensity based on contributionCount
 				dayElement.setAttribute(
 					"style",
-					`background-color:${options['themeColor']}; opacity: ${Math.min(colorIntensity, 1)};`
+					`background-color:${
+						options["themeColor"] + floatToHex(colorIntensity)
+					};`
 				); // Use color from data or default color
 			}
 			dayElement.setAttribute(
@@ -96,8 +114,8 @@ function renderCalendar(contributionData, options) {
 
 	const styles = `
   body{
-	background-color: ${options['backgroundColor']};
-  	color: ${options['themeColor']};
+	background-color: ${options["backgroundColor"]};
+  	color: ${options["themeColor"]};
   }
   #calendar {
     display: grid;
@@ -111,7 +129,7 @@ function renderCalendar(contributionData, options) {
   .day {
     width: 17px;
     height: 17px;
-    border: 1px solid ${options['themeColor']};
+    border: 1px solid ${options["themeColor"]};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -132,7 +150,8 @@ function renderCalendar(contributionData, options) {
     padding: 5px;
     border-radius: 5px;
     white-space: nowrap;
-    color: ${options['backgroundColor']};
+    color: ${options["backgroundColor"]};
+	font-weight: normal;
     z-index: 5;
   }
   .calendar-wrapper {
@@ -179,10 +198,8 @@ async function fetchDataFromServer(username) {
 			method: "GET", // *GET, POST, PUT, DELETE, etc.
 			mode: "cors", // no-cors, *cors, same-origin
 			cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-			credentials: "same-origin", // include, *same-origin, omit
 			headers: {
 				"Content-Type": "application/json",
-				// 'Content-Type': 'application/x-www-form-urlencoded',
 			},
 		}
 	);
@@ -212,14 +229,21 @@ async function generateCalendar(username, options) {
 }
 
 function initGitHubCalendar() {
-    const calendarComponent = document.getElementById("calendar-component");
+	while (document.getElementById("calendar-component") === null) {
+		setTimeout(() => {
+			console.log(
+				"Waiting for DOM to load everything before we start generating your Github Activity Calendar ;)"
+			);
+		}, 50);
+	}
+	const calendarComponent = document.getElementById("calendar-component");
 	const username = calendarComponent.getAttribute("username");
-    const themeColor = calendarComponent.getAttribute('theme-color')
-    const backgroundColor = calendarComponent.getAttribute('background-color')
-    const options = {
-        'themeColor': themeColor===null ? '#0f0' : themeColor,
-        'backgroundColor': backgroundColor===null ? '#121212' : backgroundColor
-    }
+	const themeColor = calendarComponent.getAttribute("theme-color");
+	const backgroundColor = calendarComponent.getAttribute("background-color");
+	const options = {
+		themeColor: themeColor === null ? "#00ff00" : themeColor,
+		backgroundColor: backgroundColor === null ? "#121212" : backgroundColor,
+	};
 	if (username.length > 0) {
 		generateCalendar(username, options);
 	} else {
