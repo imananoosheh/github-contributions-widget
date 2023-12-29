@@ -229,6 +229,13 @@ async function generateCalendar(username, options) {
 }
 
 function initGitHubCalendar() {
+	let ghCalCompIsLoaded = document.getElementById("calendar-component")===null ? false : true
+	while(!ghCalCompIsLoaded){
+		setTimeout(()=>{
+			ghCalCompIsLoaded = document.getElementById("calendar-component")===null ? false : true
+			console.log('Waiting for all HTML load...')
+		}, 500);
+	}
 	const calendarComponent = document.getElementById("calendar-component");
 	if (calendarComponent) {
 		const username = calendarComponent.getAttribute("username");
@@ -248,8 +255,7 @@ function initGitHubCalendar() {
 				`username fetched:${username}\n`
 			);
 		}
-	} else {
-		setTimeout(initGitHubCalendar(), 200);
 	}
 }
+
 initGitHubCalendar();
