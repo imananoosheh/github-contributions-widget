@@ -256,5 +256,4 @@ function initGitHubCalendar() {
 		}
 	}
 }
-
 initGitHubCalendar();
