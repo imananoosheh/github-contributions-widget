@@ -224,7 +224,6 @@ async function generateCalendar(username, options) {
 		renderCalendar(contributionData, options);
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
-		// Handle the error or do something else
 	}
 }
 
