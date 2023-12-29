@@ -247,6 +247,7 @@ function initGitHubCalendar() {
 				backgroundColor === null ? "#121212" : backgroundColor,
 		};
 		if (username.length > 0) {
+			console.log('Generating the GitHub Calendar ...')
 			generateCalendar(username, options);
 		} else {
 			console.error(
