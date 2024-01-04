@@ -79,12 +79,13 @@ function renderCalendar(contributionData, options) {
 			);
 			//Add gradiant proportionate to contribution count
 			if (data && data.contributionCount > 0) {
-				const colorIntensity = data.contributionCount / 100; // Adjust color intensity based on contributionCount
+				const colorIntensity = data.contributionCount / 10.00; // Adjust color intensity based on contributionCount
 				dayElement.setAttribute(
 					"style",
 					`background-color:${
 						options["themeColor"] + floatToHex(colorIntensity)
-					};`
+					};
+					align-content: baseline;`
 				); // Use color from data or default color
 			}
 			dayElement.setAttribute(
@@ -100,7 +101,7 @@ function renderCalendar(contributionData, options) {
 					data.contributionCount
 				);
 				if (data.contributionCount >= 10) {
-					dayElement.textContent = "+";
+					dayElement.textContent = "*";
 				}
 			}
 			const today = new Date();
@@ -120,16 +121,16 @@ function renderCalendar(contributionData, options) {
   #calendar {
     display: grid;
     /* 53 columns for each week in a year */
-    grid-template-columns: repeat(53, 17px);
+    grid-template-columns: repeat(53, 1rem);
     /* 7 rows for each day of the week */
-    grid-template-rows: repeat(7, 17px);
+    grid-template-rows: repeat(7, 1rem);
     gap: 2px;
   }
   
   .day {
-    width: 17px;
-    height: 17px;
-    border: 1px solid ${options["themeColor"]};
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid ${options["themeColor"]+'80'};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -163,6 +164,10 @@ function renderCalendar(contributionData, options) {
     padding-right: 1rem;
     text-align: right;
     width: 2rem;
+  }
+  .calendar-wrapper aside div {
+    width: 1rem;
+    height: 1rem;
   }
   .months {
     display: flex;
