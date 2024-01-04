@@ -168,6 +168,8 @@ function renderCalendar(contributionData, options) {
   .calendar-wrapper aside div {
     width: 1rem;
     height: 1rem;
+	margin-bottom: 2px;
+  	line-height: 1rem;
   }
   .months {
     display: flex;
