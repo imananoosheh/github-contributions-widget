@@ -175,11 +175,11 @@ function renderCalendar(contributionData, options) {
     display: flex;
     flex-direction: row;
     justify-content: start;
-    margin-left: 3rem;
+    margin-left: 4rem;
   }
   .month {
     width: 4.75rem;
-	text-align: center;
+	text-align: left;
   }
   #calendar-component{
     margin: 3rem 0;
