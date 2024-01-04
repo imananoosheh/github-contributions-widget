@@ -1,6 +1,10 @@
 # GitHub Contribution Calendar Widget
 
-Welcome to the GitHub Contribution Calendar Widget! This widget allows you to display a GitHub-like contribution calendar on your website, showcasing a user's activity over the past year.
+Welcome to the GitHub Contribution Calendar Widget! This widget allows you to display a GitHub-like contribution calendar on your website, showcasing a user's activity over the past year. It also shows where you have gone beyond!
+
+## Demo Screenshot
+
+![Demo Screenshot Image](https://raw.githubusercontent.com/imananoosheh/github-contributions-fetch/main/Screenshot_2024-01-04_at_12-44-28_Iman_Anoosheh_Portfolio.png)
 
 ## Frontend Usage (github_calendar_widget.js)
 
