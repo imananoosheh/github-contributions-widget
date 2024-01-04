@@ -11,7 +11,7 @@ To include the GitHub Contribution Calendar Widget on your webpage, follow these
    Add the following script tag to the `<head>` section of your HTML file. This will include the GitHub Contribution Calendar Widget script hosted on jsDelivr.
 
    ```html
-   <script defer src="https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch@latest/github_calendar_widget.js"></script>
+   <script type="module" defer src="https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch@latest/github_calendar_widget.js"></script>
    ```
 
 2. **Create a Container:**
@@ -19,7 +19,7 @@ To include the GitHub Contribution Calendar Widget on your webpage, follow these
    Add a container `<div>` in the body of your HTML to hold the calendar. Provide an `id` for the container and specify the GitHub username using the `username` attribute:
 
    ```html
-   <div id="calendar-component" username="github-username"></div>
+   <div id="calendar-component" username="<your-github-username>"></div>
    ```
 
 3. **Customization (Optional):**
@@ -27,7 +27,7 @@ To include the GitHub Contribution Calendar Widget on your webpage, follow these
    You can customize the appearance of the calendar by adding optional attributes to the container `<div>`. For example, to set the theme color, use the `theme-color` attribute:
 
    ```html
-   <div id="calendar-component" username="github-username" theme-color="#4285f4"></div>
+   <div id="calendar-component" username="<your-github-username>" theme-color="#4285f4"></div>
    ```
 
    Available attributes:
