@@ -14,10 +14,15 @@ const monthsMap = {
 	11: "Dec",
 };
 
+/**
+ * Function to render the GitHub Activity Calendar.
+ * @param {Array} contributionData - Array of GitHub contribution data.
+ * @param {Object} options - Options for customizing the calendar appearance.
+ */
 function renderCalendar(contributionData, options) {
-	const today = new Date()
-    today.setDate(today.getDate()-365)
-	const startingMonth = today.getMonth()
+	const today = new Date();
+	today.setDate(today.getDate() - 365);
+	const startingMonth = today.getMonth();
 	const calendarComponent = document.getElementById("calendar-component");
 	const calendarHeader = document.createElement("h1");
 	calendarHeader.textContent = "GitHub Activity Calendar";
@@ -49,6 +54,11 @@ function renderCalendar(contributionData, options) {
 	calendarDaysTemplate.append(calendar);
 	calendarComponent.append(calendarDaysTemplate);
 
+	/**
+	 * Function to convert a floating-point number to hexadecimal.
+	 * @param {number} floatingNumber - The floating-point number (0.00 to 1.00).
+	 * @returns {string} - The hexadecimal representation (00 to FF).
+	 */
 	function floatToHex(floatingNumber) {
 		//Ensuring more than threshold gets colored with no opacity (FF <===> alpha-value: 0)
 		if (floatingNumber >= 1) {
@@ -81,7 +91,7 @@ function renderCalendar(contributionData, options) {
 			);
 			//Add gradiant proportionate to contribution count
 			if (data && data.contributionCount > 0) {
-				const colorIntensity = data.contributionCount / 10.00; // Adjust color intensity based on contributionCount
+				const colorIntensity = data.contributionCount / 10.0; // Adjust color intensity based on contributionCount
 				dayElement.setAttribute(
 					"style",
 					`background-color:${
@@ -132,7 +142,7 @@ function renderCalendar(contributionData, options) {
   .day {
     width: 1rem;
     height: 1rem;
-    border: 1px solid ${options["themeColor"]+'80'};
+    border: 1px solid ${options["themeColor"] + "80"};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -199,7 +209,11 @@ function renderCalendar(contributionData, options) {
 	document.head.appendChild(styleElement);
 }
 
-//fetching data from API
+/**
+ * Function to fetch data from the GitHub API.
+ * @param {string} username - GitHub username.
+ * @returns {Promise} - A promise that resolves to the GitHub contribution data.
+ */
 async function fetchDataFromServer(username) {
 	const response = await fetch(
 		`https://nulljuju.dev/github_calendar/${username}`,
@@ -220,7 +234,11 @@ async function fetchDataFromServer(username) {
 	}
 }
 
-// Call this function to fetch data and generate the calendar on the frontend
+/**
+ * Function to generate the GitHub Activity Calendar on the frontend.
+ * @param {string} username - GitHub username.
+ * @param {Object} options - Options for customizing the calendar appearance.
+ */
 async function generateCalendar(username, options) {
 	try {
 		const contributionData = await fetchDataFromServer(username);
@@ -236,12 +254,19 @@ async function generateCalendar(username, options) {
 	}
 }
 
+/**
+ * Function to initialize the GitHub Activity Calendar.
+ */
 function initGitHubCalendar() {
-	let ghCalCompIsLoaded = document.getElementById("calendar-component")===null ? false : true
-	while(!ghCalCompIsLoaded){
-		setTimeout(()=>{
-			ghCalCompIsLoaded = document.getElementById("calendar-component")===null ? false : true
-			console.log('Waiting for all HTML load...')
+	let ghCalCompIsLoaded =
+		document.getElementById("calendar-component") === null ? false : true;
+	while (!ghCalCompIsLoaded) {
+		setTimeout(() => {
+			ghCalCompIsLoaded =
+				document.getElementById("calendar-component") === null
+					? false
+					: true;
+			console.log("Waiting for all HTML load...");
 		}, 500);
 	}
 	const calendarComponent = document.getElementById("calendar-component");
@@ -256,7 +281,7 @@ function initGitHubCalendar() {
 				backgroundColor === null ? "#121212" : backgroundColor,
 		};
 		if (username.length > 0) {
-			console.log('Generating the GitHub Calendar ...')
+			console.log("Generating the GitHub Calendar ...");
 			generateCalendar(username, options);
 		} else {
 			console.error(
