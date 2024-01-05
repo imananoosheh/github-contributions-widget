@@ -15,7 +15,9 @@ const monthsMap = {
 };
 
 function renderCalendar(contributionData, options) {
-	const startingMonth = new Date(contributionData[0]["date"]).getMonth();
+	const today = new Date()
+    today.setDate(today.getDate()-365)
+	const startingMonth = today.getMonth()
 	const calendarComponent = document.getElementById("calendar-component");
 	const calendarHeader = document.createElement("h1");
 	calendarHeader.textContent = "GitHub Activity Calendar";
