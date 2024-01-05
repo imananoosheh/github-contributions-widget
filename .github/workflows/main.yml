@@ -11,3 +11,4 @@ jobs:
         with:
           url: |
             https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch@latest/github_calendar_widget.js
+            https://cdn.jsdelivr.net/gh/imananoosheh/github-contributions-fetch@latest/githubcalendarwidget.min.js
