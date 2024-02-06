@@ -253,9 +253,9 @@ app.post("/github_repo_2_md_file", async (req, res) => {
 				.split("/")
 				.pop()}`
 	);
-
+				
 	// After this line, you could send a response back to the client indicating success or failure
-	res.json({ fileUrls });
+	res.status(200).json({ fileUrls });
 });
 
 const PORT = process.env.SERVER_PORT;
