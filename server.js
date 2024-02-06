@@ -239,7 +239,7 @@ app.post("/github_repo_2_md_file", async (req, res) => {
 	const urls = req.body.urls;
 	console.log(`urls:${urls}`); // TEST: remove it after the testing
 	const uniqueKey4ThisRequst = uuidv4();
-	const saveDir = `/home/pathfinder/Desktop/working-projects/github-contributions-fetch/public/downloaded_files_${uniqueKey4ThisRequst}`; // Directory to save the downloaded files
+	const saveDir = `${process.env.PUBLIC_DIR}downloaded_files_${uniqueKey4ThisRequst}`; // Directory to save the downloaded files
 
 	await downloadFilesConcurrently(urls, saveDir);
 	const mdPaths = await readZipFiles(saveDir);
