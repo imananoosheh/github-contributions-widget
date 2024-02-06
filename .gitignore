@@ -1,5 +1,6 @@
-# Buffer file disgard
+# Buffer file/dir disgard
 archive.json
+public/
 
 # Logs
 logs

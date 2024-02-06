@@ -1,15 +1,29 @@
 // server.js
 "use strict";
 import dotenv from "dotenv";
+
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+import fs, { promises as fsPromises } from "fs";
+import path from "path";
+import { promisify } from "util";
+import JSZip from "jszip";
+import stream from "stream";
+const pipeline = promisify(stream.pipeline);
+
 import express from "express";
 const app = express();
 dotenv.config();
 
+app.use(express.json());
+// Serve files from a public directory, e.g., 'public'
+app.use("/files", express.static("public"));
 app.use(function (req, res, next) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Methods", "GET");
 	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 	res.setHeader("Access-Control-Allow-Credentials", true);
+	console.log(`Received ${req.method} request to ${req.url}`);
 	next();
 });
 
@@ -56,7 +70,151 @@ async function getContributions(token, username) {
 	return contributionData;
 }
 
-// Run Server
+/**
+ * This section of the server does receive urls of github repo, then downloads them all,
+ * then write all the files of each zip file in a single .md file and sent it back to ChatGPT
+ *
+ */
+/**
+ * Downloads files from URLs and saves them in a local directory concurrently.
+ *
+ * @param {Array<string>} urls Array of file URLs to download.
+ * @param {string} saveDir Directory where the files will be saved.
+ */
+async function downloadFilesConcurrently(urls, saveDir) {
+	// Ensure the save directory exists
+	if (!fs.existsSync(saveDir)) {
+		fs.mkdirSync(saveDir, { recursive: true });
+	}
+
+	const downloadPromises = urls.map(async (url, index) => {
+		if (url.endsWith("/")) {
+			url = url + "archive/refs/heads/main.zip";
+		} else {
+			url = url + "/archive/refs/heads/main.zip";
+		}
+		try {
+			const response = await axios({
+				url: url,
+				method: "GET",
+				responseType: "stream",
+			});
+
+			// Generate a filename based on the URL or use index to ensure uniqueness
+			const fileName =
+				new URL(url).pathname.split("/")[2] + ".zip" || `file-${index}`;
+			const filePath = path.join(saveDir, fileName);
+
+			console.log(`Downloading file from ${url}...`); // TEST:
+
+			// Save the file to the local directory
+			await pipeline(response.data, fs.createWriteStream(filePath));
+
+			console.log(`Saved ${fileName} to ${saveDir}`); // TEST:
+		} catch (error) {
+			console.error(`Error downloading from ${url}: ${error.message}`);
+			const newURL = url.split("main.zip")[0] + "master.zip";
+			try {
+				const responseToProcess = await axios({
+					url: newURL,
+					method: "GET",
+					responseType: "stream",
+				});
+				// Generate a filename based on the URL or use index to ensure uniqueness
+				const fileName =
+					new URL(newURL).pathname.split("/")[2] + ".zip" ||
+					`file-${index}`;
+				const filePath = path.join(saveDir, fileName);
+
+				console.log(
+					`404 received BUT Downloading file AGAIN from ${newURL}...`
+				); // TEST:
+
+				// Save the file to the local directory
+				await pipeline(
+					responseToProcess.data,
+					fs.createWriteStream(filePath)
+				);
+			} catch (error) {
+				console.error(
+					`2nd try downloading FAILED! from ${newURL}: ${error.message}`
+				); // TEST:
+			}
+		}
+	});
+
+	// Wait for all downloads to complete
+	await Promise.all(downloadPromises);
+
+	console.log("All downloads complete.");
+	return true;
+}
+
+async function readZipFiles(saveDir) {
+	try {
+		const files = await fsPromises.readdir(saveDir);
+		console.log("\nCurrent directory filenames:"); // TEST:
+		const zipFileAddresses = files
+			.filter((file) => file.endsWith(".zip"))
+			.map((file) => `${saveDir}/${file}`);
+		console.log(`All zip files downloaded: ${zipFileAddresses}`); // TEST:
+		return await zipToMarkdown(saveDir, zipFileAddresses); // Ensure this call is awaited
+	} catch (err) {
+		console.error(err);
+	}
+}
+
+async function zipToMarkdown(saveDir, zipFiles) {
+	let mdPaths = [];
+	try {
+		console.log(
+			`Going through the save directory for .zip files. current zipfiles:${zipFiles}`
+		); // TEST:
+		for (let zipPath of zipFiles) {
+			const data = await fsPromises.readFile(zipPath);
+			const zip = await JSZip.loadAsync(data);
+			const allFiles = Object.keys(zip.files);
+			const codeFiles = allFiles.filter((file) =>
+				codeExtensions.has(path.extname(file))
+			);
+
+			if (codeFiles.length > 0) {
+				const mdFilename =
+					path.basename(zipPath, path.extname(zipPath)) + ".md";
+				const mdPath = path.join(saveDir, mdFilename);
+				mdPaths.push(mdPath);
+				let mdContent = "";
+
+				for (let codeFile of codeFiles) {
+					const fileData = await zip.files[codeFile].async("string");
+					const ext = path.extname(codeFile).substring(1); // Remove the dot
+					mdContent += `\`\`\`${ext}\n${fileData}\n\`\`\`\n\n`;
+				}
+
+				await fsPromises.writeFile(mdPath, mdContent, "utf-8");
+			}
+		}
+		console.info("Code extraction and Markdown file creation complete.");
+		return mdPaths;
+	} catch (error) {
+		console.error("Error processing zip files:", error);
+		// res.status(500).send("Internal Server Error");
+	}
+}
+
+const codeExtensions = new Set([
+	".py",
+	".gitignore",
+	".md",
+	".html",
+	".js",
+	".json",
+	".css",
+	".yml",
+	".scss",
+	".tsx",
+	".ts",
+]);
 
 app.get("/github_calendar/:username", async (req, res) => {
 	const username = req.params.username;
@@ -75,6 +233,29 @@ app.get("/github_calendar/:username", async (req, res) => {
 		// Handle the error, return or do something else
 		res.status(500).send("Error fetching contribution data.");
 	}
+});
+
+app.post("/github_repo_2_md_file", async (req, res) => {
+	const urls = req.body.urls;
+	console.log(`urls:${urls}`); // TEST: remove it after the testing
+	const uniqueKey4ThisRequst = uuidv4();
+	const saveDir = `/home/pathfinder/Desktop/working-projects/github-contributions-fetch/public/downloaded_files_${uniqueKey4ThisRequst}`; // Directory to save the downloaded files
+
+	await downloadFilesConcurrently(urls, saveDir);
+	const mdPaths = await readZipFiles(saveDir);
+
+	// Generate URLs for each markdown file
+	const fileUrls = mdPaths.map(
+		(filename) =>
+			`${req.protocol}://${req.get(
+				"host"
+			)}/files/downloaded_files_${uniqueKey4ThisRequst}/${filename
+				.split("/")
+				.pop()}`
+	);
+
+	// After this line, you could send a response back to the client indicating success or failure
+	res.json({ fileUrls });
 });
 
 const PORT = process.env.SERVER_PORT;
