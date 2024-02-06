@@ -247,7 +247,7 @@ app.post("/github_repo_2_md_file", async (req, res) => {
 
 	const form = new FormData();
 	// Add each .md file to the form
-    mdFilesPaths.forEach(filePath => {
+    mdPaths.forEach(filePath => {
         form.append('files', fs.createReadStream(filePath), {
             filename: filePath.split('/').pop(), // Extracts the filename from the path
         });
