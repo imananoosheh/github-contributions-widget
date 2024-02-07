@@ -18,7 +18,7 @@ dotenv.config();
 
 app.use(express.json());
 // Serve files from a public directory, e.g., 'public'
-app.use("/files", express.static("public"));
+app.use("/files", express.static(process.env.STATIC_DIR.split('/').at(-2)));
 app.use(function (req, res, next) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Methods", "GET, POST");
@@ -240,7 +240,7 @@ app.post("/github_repo_2_md_file", async (req, res) => {
 	const urls = req.body.urls;
 	console.log(`urls:${urls}`); // TEST: remove it after the testing
 	const uniqueKey4ThisRequst = uuidv4();
-	const saveDir = `${process.env.PUBLIC_DIR}downloaded_files_${uniqueKey4ThisRequst}`; // Directory to save the downloaded files
+	const saveDir = `${process.env.STATIC_DIR}downloaded_files_${uniqueKey4ThisRequst}`; // Directory to save the downloaded files
 
 	await downloadFilesConcurrently(urls, saveDir);
 	const mdPaths = await readZipFiles(saveDir);
