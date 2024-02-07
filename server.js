@@ -17,14 +17,13 @@ const app = express();
 dotenv.config();
 
 app.use(express.json());
-// Serve files from a public directory, e.g., 'public'
 app.use("/files", express.static(process.env.STATIC_DIR.split('/').at(-2)));
 app.use(function (req, res, next) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Methods", "GET, POST");
 	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 	res.setHeader("Access-Control-Allow-Credentials", true);
-	console.log(`Received ${req.method} request to ${req.url}`);
+	console.log(`Received ${req.method} from \tip:${req.ip}\thostname:${req.hostname}\t request to ${req.url}`);
 	next();
 });
 
