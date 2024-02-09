@@ -9,7 +9,7 @@ import path from "path";
 import { promisify } from "util";
 import JSZip from "jszip";
 import stream from "stream";
-import FormData from 'form-data';
+import FormData from "form-data";
 const pipeline = promisify(stream.pipeline);
 
 import express from "express";
@@ -17,13 +17,15 @@ const app = express();
 dotenv.config();
 
 app.use(express.json());
-app.use("/files", express.static(process.env.STATIC_DIR.split('/').at(-2)));
+app.use("/files", express.static(process.env.STATIC_DIR.split("/").at(-2)));
 app.use(function (req, res, next) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Methods", "GET, POST");
 	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 	res.setHeader("Access-Control-Allow-Credentials", true);
-	console.log(`Received ${req.method} from \tip:${req.ip}\thostname:${req.hostname}\t request to ${req.url}`);
+	console.log(
+		`Received ${req.method} from \tip:${req.ip}\thostname:${req.hostname}\t request to ${req.url}`
+	);
 	next();
 });
 
@@ -150,7 +152,7 @@ async function downloadFilesConcurrently(urls, saveDir) {
 	return true;
 }
 
-async function readZipFiles(saveDir) {
+async function readZipFilesToMarkdown(saveDir) {
 	try {
 		const files = await fsPromises.readdir(saveDir);
 		console.log("\nCurrent directory filenames:"); // TEST:
@@ -158,13 +160,13 @@ async function readZipFiles(saveDir) {
 			.filter((file) => file.endsWith(".zip"))
 			.map((file) => `${saveDir}/${file}`);
 		console.log(`All zip files downloaded: ${zipFileAddresses}`); // TEST:
-		return await zipToMarkdown(saveDir, zipFileAddresses); // Ensure this call is awaited
+		return await aZipToAMarkdown(saveDir, zipFileAddresses); // Ensure this call is awaited
 	} catch (err) {
 		console.error(err);
 	}
 }
 
-async function zipToMarkdown(saveDir, zipFiles) {
+async function aZipToAMarkdown(saveDir, zipFiles) {
 	let mdPaths = [];
 	try {
 		console.log(
@@ -174,6 +176,10 @@ async function zipToMarkdown(saveDir, zipFiles) {
 			const data = await fsPromises.readFile(zipPath);
 			const zip = await JSZip.loadAsync(data);
 			const allFiles = Object.keys(zip.files);
+			/**
+			 * TODO: in filtering below excluding files need to be added,
+			 * such as package-lock.json which counts as unneccesary
+			 */
 			const codeFiles = allFiles.filter((file) =>
 				codeExtensions.has(path.extname(file))
 			);
@@ -195,7 +201,7 @@ async function zipToMarkdown(saveDir, zipFiles) {
 			}
 		}
 		console.info("Code extraction and Markdown file creation complete.");
-		return mdPaths;
+		return mdPaths[0];
 	} catch (error) {
 		console.error("Error processing zip files:", error);
 		// res.status(500).send("Internal Server Error");
@@ -204,16 +210,22 @@ async function zipToMarkdown(saveDir, zipFiles) {
 
 const codeExtensions = new Set([
 	".py",
-	".gitignore",
+	".go",
+	".java",
 	".md",
 	".html",
 	".js",
+	".cjs",
+	".jsx",
+	".mjs",
 	".json",
 	".css",
 	".yml",
 	".scss",
 	".tsx",
 	".ts",
+	".cts",
+	".mts",
 ]);
 
 app.get("/github_calendar/:username", async (req, res) => {
@@ -235,42 +247,50 @@ app.get("/github_calendar/:username", async (req, res) => {
 	}
 });
 
+async function tokenizeAndSplitMarkdown(mdPath, tokenPerPage = 4000) {
+	return new Promise((resolve, reject) => {
+		fs.readFile(mdPath, "utf-8", (err, data) => {
+			if (err) {
+				console.log(`Encountered an error reading the md file: ${err}`);
+				reject(err); // Reject the promise if there's an error
+				return;
+			}
+			//number of words / tokens exist in the md file
+			const contentTokens = data.trim().split(/\s+/);
+			let mdContents = [];
+			for (let i = 0; i < contentTokens.length; i += tokenPerPage) {
+                // Slice the tokens to get the current chunk based on tokenPerPage
+                const chunkTokens = contentTokens.slice(i, i + tokenPerPage);
+                // Join the chunk tokens back into a string
+                mdContents.push(chunkTokens.join(' '));
+            }
+			resolve(mdContents); // Resolve the promise with the processed content
+		});
+	});
+}
+
 app.post("/github_repo_2_md_file", async (req, res) => {
-	const urls = req.body.urls;
+	const { urls, page = 1, perPage = 4000 } = req.body;
 	console.log(`urls:${urls}`); // TEST: remove it after the testing
 	const uniqueKey4ThisRequst = uuidv4();
 	const saveDir = `${process.env.STATIC_DIR}downloaded_files_${uniqueKey4ThisRequst}`; // Directory to save the downloaded files
 
 	await downloadFilesConcurrently(urls, saveDir);
-	const mdPaths = await readZipFiles(saveDir);
+	const mdPath = await readZipFilesToMarkdown(saveDir);
 
-	const form = new FormData();
-	// Add each .md file to the form
-    mdPaths.forEach(filePath => {
-        form.append('files', fs.createReadStream(filePath), {
-            filename: filePath.split('/').pop(), // Extracts the filename from the path
-        });
+	const contentParts = await tokenizeAndSplitMarkdown(mdPath, perPage);
+
+	const totalPages = contentParts.length
+
+	// Select the requested page (part)
+    const selectedContentPart = contentParts[page - 1] || '';
+	console.log(`contentParts:${contentParts}\n\nselectedContentPart:${selectedContentPart}`)
+
+	res.json({
+        contentParts: [selectedContentPart], // Return the selected part
+        totalPages: totalPages,
+        currentPage: page,
     });
-
-	// Set the correct headers for multipart/form-data, including the boundary generated by form-data
-    res.set('Content-Type', `multipart/form-data; boundary=${form.getBoundary()}`);
-    
-    // Stream the form data as the response
-    form.pipe(res);
-
-
-	// // Generate URLs for each markdown file
-	// const fileUrls = mdPaths.map(
-	// 	(filename) =>
-	// 		`${req.protocol}://${req.get(
-	// 			"host"
-	// 		)}/files/downloaded_files_${uniqueKey4ThisRequst}/${filename
-	// 			.split("/")
-	// 			.pop()}`
-	// );
-				
-	// After this line, you could send a response back to the client indicating success or failure
-	// res.status(200).json({ fileUrls });
 });
 
 const PORT = process.env.SERVER_PORT;
