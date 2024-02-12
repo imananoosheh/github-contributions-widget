@@ -16,6 +16,8 @@ import express from "express";
 const app = express();
 dotenv.config();
 
+let requestNumber = 0
+
 app.use(express.json());
 app.use("/files", express.static(process.env.STATIC_DIR.split("/").at(-2)));
 app.use(function (req, res, next) {
@@ -24,7 +26,11 @@ app.use(function (req, res, next) {
 	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 	res.setHeader("Access-Control-Allow-Credentials", true);
 	console.log(
-		`Received ${req.method} from \tip:${req.ip}\thostname:${req.hostname}\t request to ${req.url}`
+		`***[#${requestNumber++}]
+		Received ${req.method} from: ip:${req.ip}
+		request to ${req.url}
+		body:${req.body}
+		***`
 	);
 	next();
 });
@@ -284,7 +290,6 @@ app.post("/github_repo_2_md_file", async (req, res) => {
 
 	// Select the requested page (part)
     const selectedContentPart = contentParts[page - 1] || '';
-	console.log(`contentParts:${contentParts}\n\nselectedContentPart:${selectedContentPart}`)
 
 	res.json({
         contentParts: [selectedContentPart], // Return the selected part
