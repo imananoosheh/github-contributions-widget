@@ -278,7 +278,7 @@ async function tokenizeAndSplitMarkdown(mdPath, tokenPerPage = 4000) {
 app.post("/github_repo_2_md_file", async (req, res) => {
 	const { urls, page = 1, perPage = 4000 } = req.body;
 	console.log(`urls:${urls}`); // TEST: remove it after the testing
-	const uniqueKey4ThisRequst = uuidv4();
+	const uniqueKey4ThisRequst = uuidv4(); //TODO: to delete the directory after a while (~ n hours)
 	const saveDir = `${process.env.STATIC_DIR}downloaded_files_${uniqueKey4ThisRequst}`; // Directory to save the downloaded files
 
 	await downloadFilesConcurrently(urls, saveDir);
