@@ -9,7 +9,7 @@ import path from "path";
 import { promisify } from "util";
 import JSZip from "jszip";
 import stream from "stream";
-import FormData from "form-data";
+import bodyParser from "body-parser";
 const pipeline = promisify(stream.pipeline);
 
 import express from "express";
@@ -17,7 +17,8 @@ const app = express();
 dotenv.config();
 
 let requestNumber = 0
-
+// parse application/json
+app.use(bodyParser.json())
 app.use(express.json());
 app.use("/files", express.static(process.env.STATIC_DIR.split("/").at(-2)));
 app.use(function (req, res, next) {
@@ -29,7 +30,7 @@ app.use(function (req, res, next) {
 		`***[#${requestNumber++}]
 		Received ${req.method} from: ip:${req.ip}
 		request to ${req.url}
-		body:${req.body}
+		body:${req.body.toString()}
 		***`
 	);
 	next();
