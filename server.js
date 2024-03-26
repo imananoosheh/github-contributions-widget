@@ -27,10 +27,10 @@ app.use(function (req, res, next) {
 	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 	res.setHeader("Access-Control-Allow-Credentials", true);
 	console.log(
-		`***[#${requestNumber++}]
+		`***[#${++requestNumber}]
 		Received ${req.method} from: ip:${req.ip}
 		request to ${req.url}
-		body:${req.body.toString()}
+		body:${JSON.stringify(req.body)}
 		***`
 	);
 	next();
