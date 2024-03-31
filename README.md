@@ -38,7 +38,7 @@ To include the GitHub Contribution Calendar Widget on your webpage, follow these
    - `theme-color`: The main color of the calendar.
    - `background-color`: The background color of the calendar.
 
-## Server Deployment
+## Server Deployment (OPTIONAL - for curious developers!)
 
 If you want to deploy the backend server on your own server, follow these steps:
 
@@ -65,4 +65,4 @@ If you want to deploy the backend server on your own server, follow these steps:
    Your API endpoint will be accessible at `http://your-server-domain-or-ip/github_calendar/:username`. Make sure to update your GitHub widget script with this URL.
 
 ---
-Now, users can import your GitHub Contribution Calendar Widget script on their webpage and customize the appearance as needed. Additionally, you can deploy the backend server on your own server to provide the necessary data. Happy coding!
+Now, you can deploy the backend server on your own server to provide the necessary data. Happy coding!
