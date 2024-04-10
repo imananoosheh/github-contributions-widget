@@ -14,12 +14,45 @@ const monthsMap = {
 	11: "Dec",
 };
 
+const responsiveRenderingPixelThreshold = 600;
+
+// define default options
+const options = {
+	themeColor: "#00ff00",
+	backgroundColor: "#212121",
+};
+
+let contributionData = null;
+
+//-----------------------UTILITY	FUNCTIONS------------------------
+/**
+ * Function to convert a floating-point number to hexadecimal.
+ * @param {number} floatingNumber - The floating-point number (0.00 to 1.00).
+ * @returns {string} - The hexadecimal representation (00 to FF).
+ */
+function floatToHex(floatingNumber) {
+	//Ensuring more than threshold gets colored with no opacity (FF <===> alpha-value: 0)
+	if (floatingNumber >= 1) {
+		return "FF";
+	}
+	// Ensure the input is in the valid range
+	if (floatingNumber < 0) {
+		throw new Error("Input must be in the range of 0.00 to 1.00");
+	}
+	// Convert the floating-point number to an integer in the range 0 to 255
+	const intValue = Math.round(floatingNumber * 255);
+	// Convert the integer to a hexadecimal string
+	const hexString = intValue.toString(16).padStart(2, "0").toUpperCase();
+	return hexString;
+}
+//-------------------------------------------------------------------
+
 /**
  * Function to render the GitHub Activity Calendar.
  * @param {Array} contributionData - Array of GitHub contribution data.
  * @param {Object} options - Options for customizing the calendar appearance.
  */
-function renderCalendar(contributionData, options) {
+function renderCalendar(contributionData, isCalHorizontal, options) {
 	const today = new Date();
 	today.setDate(today.getDate() - 365);
 	const startingMonth = today.getMonth();
@@ -27,6 +60,8 @@ function renderCalendar(contributionData, options) {
 	const calendarHeader = document.createElement("h1");
 	calendarHeader.textContent = "GitHub Activity Calendar";
 	calendarComponent.append(calendarHeader);
+
+	// Generating Months sub-component
 	const calendarMonthsTemplate = document.createElement("div");
 	calendarMonthsTemplate.className = "months";
 	for (let i = 0; i < 13; i++) {
@@ -37,120 +72,132 @@ function renderCalendar(contributionData, options) {
 		month.textContent = `${monthsMap[currentMonth]}`;
 		calendarMonthsTemplate.append(month);
 	}
-	calendarComponent.append(calendarMonthsTemplate);
-	const calendarDaysTemplate = document.createElement("div");
-	calendarDaysTemplate.className = "calendar-wrapper";
+
+	const calendarWrapper = document.createElement("div");
+	calendarWrapper.className = "calendar-wrapper";
+
+	//	Generating Days sub-component
 	const calendarDaysAsideBlock = document.createElement("aside");
+	calendarDaysAsideBlock.id = "weekdays-name-container";
 	const daysOfWeeks = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
-	for (let i = 0; i < 7; i++) {
+	for (let dayName of daysOfWeeks) {
 		const day = document.createElement("div");
-		day.textContent = `${daysOfWeeks[i]}`;
+		day.className = "weekday-name";
+		day.textContent = dayName;
 		calendarDaysAsideBlock.append(day);
 	}
-	calendarDaysTemplate.append(calendarDaysAsideBlock);
+
 	const calendar = document.createElement("div");
 	calendar.id = "calendar";
 	calendar.innerHTML = "";
-	calendarDaysTemplate.append(calendar);
-	calendarComponent.append(calendarDaysTemplate);
 
-	/**
-	 * Function to convert a floating-point number to hexadecimal.
-	 * @param {number} floatingNumber - The floating-point number (0.00 to 1.00).
-	 * @returns {string} - The hexadecimal representation (00 to FF).
-	 */
-	function floatToHex(floatingNumber) {
-		//Ensuring more than threshold gets colored with no opacity (FF <===> alpha-value: 0)
-		if (floatingNumber >= 1) {
-			return "FF";
+	// Funtion to propagate Day Cells in div#calendar
+	function propagateDayCells(calendar, dayNumber, weekNumber) {
+		const dayElement = document.createElement("div");
+		dayElement.classList.add("day");
+		const currentDate = new Date();
+		currentDate.setDate(
+			currentDate.getDate() - 365 + (dayNumber + weekNumber * 7)
+		);
+
+		const currentISODate = currentDate.toISOString().split("T")[0];
+		const data = contributionData.find(
+			(entry) => entry.date === currentISODate
+		);
+		//Add gradiant proportionate to contribution count
+		if (data && data.contributionCount > 0) {
+			const colorIntensity = data.contributionCount / 10.0; // Adjust color intensity based on contributionCount
+			dayElement.setAttribute(
+				"style",
+				`background-color:${
+					options["themeColor"] + floatToHex(colorIntensity)
+				};
+			align-content: baseline;`
+			); // Use color from data or default color
 		}
-		// Ensure the input is in the valid range
-		if (floatingNumber < 0) {
-			throw new Error("Input must be in the range of 0.00 to 1.00");
+		dayElement.setAttribute(
+			"date",
+			currentDate.toLocaleDateString("en-US", {
+				month: "short",
+				day: "2-digit",
+			})
+		);
+		if (data) {
+			dayElement.setAttribute("contributions", data.contributionCount);
+			if (data.contributionCount >= 10) {
+				dayElement.textContent = "*";
+			}
 		}
-		// Convert the floating-point number to an integer in the range 0 to 255
-		const intValue = Math.round(floatingNumber * 255);
-		// Convert the integer to a hexadecimal string
-		const hexString = intValue.toString(16).padStart(2, "0").toUpperCase();
-		return hexString;
+		const today = new Date();
+		if (currentDate > today) {
+			dayElement.style.backgroundColor = "transparent";
+			dayElement.style.border = "0px";
+		}
+		calendar.appendChild(dayElement);
 	}
 
-	// Generate calendar grid
-	for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
-		for (let week = 0; week < 53; week++) {
-			const dayElement = document.createElement("div");
-			dayElement.classList.add("day");
-			const currentDate = new Date();
-			currentDate.setDate(
-				currentDate.getDate() - 365 + (dayOfWeek + week * 7)
-			);
+	function renderHorizontally() {
+		calendarComponent.append(calendarMonthsTemplate);
+		calendarWrapper.append(calendarDaysAsideBlock);
+		calendarWrapper.append(calendar);
+		calendarComponent.append(calendarWrapper);
 
-			const currentISODate = currentDate.toISOString().split("T")[0];
-			const data = contributionData.find(
-				(entry) => entry.date === currentISODate
-			);
-			//Add gradiant proportionate to contribution count
-			if (data && data.contributionCount > 0) {
-				const colorIntensity = data.contributionCount / 10.0; // Adjust color intensity based on contributionCount
-				dayElement.setAttribute(
-					"style",
-					`background-color:${
-						options["themeColor"] + floatToHex(colorIntensity)
-					};
-					align-content: baseline;`
-				); // Use color from data or default color
+		// Generate calendar grid
+		for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+			for (let week = 0; week < 53; week++) {
+				propagateDayCells(calendar, dayOfWeek, week);
 			}
-			dayElement.setAttribute(
-				"date",
-				currentDate.toLocaleDateString("en-US", {
-					month: "short",
-					day: "2-digit",
-				})
-			);
-			if (data) {
-				dayElement.setAttribute(
-					"contributions",
-					data.contributionCount
-				);
-				if (data.contributionCount >= 10) {
-					dayElement.textContent = "*";
-				}
-			}
-			const today = new Date();
-			if (currentDate > today) {
-				dayElement.style.backgroundColor = "transparent";
-				dayElement.style.border = "0px";
-			}
-			calendar.appendChild(dayElement);
 		}
+	}
+	function renderVertically() {
+		calendarComponent.append(calendarDaysAsideBlock);
+		calendarWrapper.append(calendarMonthsTemplate);
+		calendarWrapper.append(calendar);
+		calendarComponent.append(calendarWrapper);
+		//TODO: code this part based on refactoring vertically rendering
+		for (let week = 0; week < 53; week++) {
+			for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+				propagateDayCells(calendar, dayOfWeek, week);
+			}
+		}
+	}
+
+	/**
+	 * Logic of either render vertically or horizontally based on user's screen ratio
+	 */
+	if (isCalHorizontal) {
+		renderHorizontally();
+	} else {
+		renderVertically();
 	}
 
 	const styles = `
-  body{
-	background-color: ${options["backgroundColor"]};
-  	color: ${options["themeColor"]};
-  }
   #calendar {
     display: grid;
     /* 53 columns for each week in a year */
-    grid-template-columns: repeat(53, 1rem);
+    grid-template-columns: ${
+		isCalHorizontal ? `repeat(53, 16px)` : `repeat(7, 32px)`
+	};
     /* 7 rows for each day of the week */
-    grid-template-rows: repeat(7, 1rem);
-    gap: 2px;
+    grid-template-rows: ${
+		isCalHorizontal ? `repeat(7, 16px)` : `repeat(53, 32px)`
+	};
+    gap: ${isCalHorizontal ? `2px` : `6px 8px`};
   }
   
   .day {
-    width: 1rem;
-    height: 1rem;
+    width: ${isCalHorizontal ? `16px` : `32px`};
+    height: ${isCalHorizontal ? `16px` : `32px`};
     border: 1px solid ${options["themeColor"] + "80"};
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     position: relative;
-    background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(0,0,0,0.7);
 	color: black;
 	font-weight: bold;
+	${!isCalHorizontal ? `font-size: 24px;` : ""}
   }
   .day:hover::after {
     content: attr(contributions) " contributions on " attr(date);
@@ -158,49 +205,63 @@ function renderCalendar(contributionData, options) {
     top: 100%;
     left: 50%;
     transform: translate(-50%, -60px);
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: ${options["backgroundColor"]};
     border: 1px solid #ccc;
     padding: 5px;
     border-radius: 5px;
     white-space: nowrap;
-    color: ${options["backgroundColor"]};
+    color: ${options["themeColor"]};
 	font-weight: normal;
+	font-size: 16px;
     z-index: 5;
+	clip-path: polygon(0% 0%, 100% 0%, 100% 65%, 50% 100%, 0% 65%);
+  	height: 32px;
+	border: 2px solid ${options["themeColor"]};
   }
   .calendar-wrapper {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: ${isCalHorizontal ? `center` : `left`};
   }
-  .calendar-wrapper aside {
-    padding-right: 1rem;
-    text-align: right;
-    width: 2rem;
+  #weekdays-name-container {
+	${
+		!isCalHorizontal
+			? `display: flex;justify-content:left;flex-direction: row;margin-left: 64px;`
+			: ``
+	}
+    text-align: ${isCalHorizontal ? `right` : `left`};
+	${isCalHorizontal ? `width: 32px;` : ``}
   }
-  .calendar-wrapper aside div {
-    width: 1rem;
-    height: 1rem;
+  #weekdays-name-container .weekday-name {
+    width: ${isCalHorizontal ? `16px` : "40px"};
+    height: 16px;
 	margin-bottom: 2px;
-  	line-height: 1rem;
+  	line-height: 16px;
   }
   .months {
     display: flex;
-    flex-direction: row;
-    justify-content: start;
-    margin-left: 4rem;
+    flex-direction: ${isCalHorizontal ? "row" : "column"};
+    justify-content: space-between;
+    margin-left: ${isCalHorizontal ? `32px` : `24px`};
   }
   .month {
-    width: 4.75rem;
 	text-align: left;
+	${!isCalHorizontal ? `width: 40px;` : ``}
   }
   #calendar-component{
-    margin: 3rem 0;
-    font-size: 1rem;
+	background-color: ${options["backgroundColor"]};
+	color: ${options["themeColor"]};
+    font-size: 16px;
 	width: fit-content;
+  }
+  #calendar-component * {
+	box-sizing: border-box;
+	font-family: "Roboto Mono", monospace;
   }
   #calendar-component > h1{
     margin-bottom: 0.5rem;
-    text-align: center;
+    text-align: ${isCalHorizontal ? `center` : `left`};
+	${!isCalHorizontal ? `font-size: 1.7rem;` : ``}
   }
   `;
 	// Apply styles to the document
@@ -239,16 +300,16 @@ async function fetchDataFromServer(username) {
  * @param {string} username - GitHub username.
  * @param {Object} options - Options for customizing the calendar appearance.
  */
-async function generateCalendar(username, options) {
+async function generateCalendar(username, isCalHorizontal, options) {
 	try {
-		const contributionData = await fetchDataFromServer(username);
+		contributionData = await fetchDataFromServer(username);
 		if (!contributionData || contributionData.length === 0) {
 			console.error("No contribution data available.");
 			// Handle the error or do something else
 			return;
 		}
 
-		renderCalendar(contributionData, options);
+		renderCalendar(contributionData, isCalHorizontal, options);
 	} catch (error) {
 		console.error("Error fetching contribution data:", error);
 	}
@@ -271,18 +332,22 @@ function initGitHubCalendar() {
 	}
 	const calendarComponent = document.getElementById("calendar-component");
 	if (calendarComponent) {
+		const displayWidth = window.innerWidth;
+		//TODO: check if the threshold pixel is accurate
+		const isCalHorizontal = displayWidth > responsiveRenderingPixelThreshold ? true : false;
 		const username = calendarComponent.getAttribute("username");
 		const themeColor = calendarComponent.getAttribute("theme-color");
 		const backgroundColor =
 			calendarComponent.getAttribute("background-color");
-		const options = {
-			themeColor: themeColor === null ? "#00ff00" : themeColor,
-			backgroundColor:
-				backgroundColor === null ? "#121212" : backgroundColor,
-		};
+		if (themeColor) {
+			options["themeColor"] = themeColor;
+		}
+		if (backgroundColor) {
+			options["backgroundColor"] = backgroundColor;
+		}
 		if (username.length > 0) {
 			console.log("Generating the GitHub Calendar ...");
-			generateCalendar(username, options);
+			generateCalendar(username, isCalHorizontal, options);
 		} else {
 			console.error(
 				"Username was not provided!\n",
@@ -291,4 +356,5 @@ function initGitHubCalendar() {
 		}
 	}
 }
+
 initGitHubCalendar();
