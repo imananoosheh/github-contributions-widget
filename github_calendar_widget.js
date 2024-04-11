@@ -122,6 +122,20 @@ function renderCalendar(contributionData, isCalHorizontal, options) {
 				day: "2-digit",
 			})
 		);
+
+		dayElement.addEventListener("touchstart", ()=>{
+			dayElement.classList.add('hovered')
+		})
+		dayElement.addEventListener("touchend", ()=>{
+			dayElement.classList.remove('hovered')
+		})
+		dayElement.addEventListener("touchcancel", ()=>{
+			dayElement.classList.remove('hovered')
+		})
+		dayElement.addEventListener("touchmove", ()=>{
+			dayElement.classList.remove('hovered')
+		})
+
 		if (data) {
 			dayElement.setAttribute("contributions", data.contributionCount);
 			if (data.contributionCount >= 10) {
@@ -203,7 +217,7 @@ function renderCalendar(contributionData, isCalHorizontal, options) {
 	font-weight: bold;
 	${!isCalHorizontal ? `font-size: 24px;` : ""}
   }
-  .day:hover::after {
+  .day:hover::after, hovered::after {
     content: attr(contributions) " contributions on " attr(date);
     position: absolute;
     top: 100%;
