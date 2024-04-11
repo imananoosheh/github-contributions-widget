@@ -1,6 +1,7 @@
 # Buffer file/dir disgard
 archive.json
 public/
+index-dev.html
 
 # Logs
 logs
