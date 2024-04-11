@@ -132,7 +132,11 @@ function renderCalendar(contributionData, isCalHorizontal, options) {
 		if (currentDate > today) {
 			dayElement.style.backgroundColor = "transparent";
 			dayElement.style.border = "0px";
+			dayElement.removeAttribute("contributions")
+			dayElement.removeAttribute("date")
+			dayElement.className = ''
 		}
+
 		calendar.appendChild(dayElement);
 	}
 
