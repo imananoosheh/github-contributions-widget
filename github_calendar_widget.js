@@ -261,7 +261,7 @@ function renderCalendar(contributionData, isCalHorizontal, options) {
   #calendar-component > h1{
     margin-bottom: 0.5rem;
     text-align: ${isCalHorizontal ? `center` : `left`};
-	${!isCalHorizontal ? `font-size: 1.7rem;` : ``}
+	${!isCalHorizontal ? `font-size: 1.5rem;` : ``}
   }
   `;
 	// Apply styles to the document
