@@ -5,7 +5,7 @@ FROM node:20
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY github-contributions-fetch/* ./
+COPY github-contributions-widget/* ./
 
 # Install dependencies
 RUN npm install
