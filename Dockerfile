@@ -1,11 +1,20 @@
 # Use the official Node.js image as a base
 FROM node:20
 
+# Declare build arguments
+ARG SERVER_PORT
+ARG STATIC_DIR
+
+# Use the build arguments
+ENV SERVER_PORT=${SERVER_PORT}
+ENV STATIC_DIR=${STATIC_DIR}
+
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY github-contributions-widget/* ./
+COPY ./package*.json ./
+COPY ./server.js ./
 
 # Install dependencies
 RUN npm install
@@ -14,11 +23,11 @@ RUN npm install
 COPY .env ./.env
 
 # Create static file directory
-RUN mkdir -p /usr/src/app/public/
+RUN mkdir -p ${STATIC_DIR}
 
 # Expose the port that your app runs on
 # Exposing port should be as same as the .env file
-EXPOSE 3003
+EXPOSE ${SERVER_PORT}
 
 # Command to run the application
 CMD ["npm", "start"]
