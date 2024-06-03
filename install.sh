@@ -55,8 +55,8 @@ cd github-contributions-widget
 
 #   Build the Docker image based on the latest version
 docker build \
-    --build-arg SERVER_PORT=$SERVER_PORT \
-    --build-arg STATIC_DIR=$STATIC_DIR \
+    --build-arg SERVER_PORT=$server_port \
+    --build-arg STATIC_DIR=$static_directory \
     -t github-contributions-widget .
 
 #   Run built image. It always restarts when failed.
